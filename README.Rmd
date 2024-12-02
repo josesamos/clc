@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# clc
+# clc <img src="man/figures/logo.png" align="right" height="139" alt="CORINE Land Cover" />
 
 <!-- badges: start -->
 <!-- badges: end -->
