@@ -18,7 +18,7 @@ first style.}
 \value{
 A data frame (`categories`) containing the category IDs, descriptions,
 and associated colors for the values present in the raster.
-The data frame has three columns: `ID`, `Descripcion` (Description), and `Color` (HEX color codes).
+The data frame has three columns: `ID`, `description` (Description), and `Color` (HEX color codes).
 }
 \description{
 This function extracts the categories (labels and associated colors) from the `layer_styles`

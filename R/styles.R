@@ -1,80 +1,117 @@
-# Función común para leer el estilo desde GeoPackage o PostGIS
+# Function to read the style from GeoPackage or PostGIS
 read_style_from_source <- function(source, layer_name = NULL) {
-  if (inherits(source, "PostgreSQLConnection")) {
-    # Conexión a PostGIS
-    query <- "SELECT * FROM layer_styles"
-    style <- DBI::dbGetQuery(source, query)
-  } else if (is.character(source) && file.exists(source)) {
-    # GeoPackage
-    style <- sf::st_read(source, layer = "layer_styles", quiet = TRUE)
-  } else {
-    stop("Invalid source: must be either a PostGIS connection or a GeoPackage file path.")
-  }
+  style <- suppressWarnings(sf::st_read(source, layer = "layer_styles", quiet = TRUE))
 
-  # Seleccionar el estilo basado en el nombre de la capa o el primero por defecto
   if (!is.null(layer_name)) {
     style <- style[style$f_table_name == layer_name, ]
     if (nrow(style) == 0) {
       stop("No style found for the specified layer name: ", layer_name)
     }
   } else {
-    style <- style[1, ]  # Seleccionar el primer estilo si no se especifica un nombre de capa
+    style <- style[1, ]
   }
-
   return(style)
 }
 
-
-# Función común para filtrar las categorías según los valores del raster
-filter_categories <- function(style, r_clc) {
-  # Leer el archivo XML del estilo QML
-  st_xml <- xml2::read_xml(style$styleQML[1])
-
-  # Extraer las categorías
-  categories <- xml2::xml_find_all(st_xml, "//category")
-  id <- as.integer(xml2::xml_attr(categories, "value"))
-  des <- xml2::xml_attr(categories, "label")
-
-  # Extraer colores de los símbolos
-  s <- xml2::xml_find_all(st_xml, ".//symbols/symbol")
-  name <- xml2::xml_attr(s, "name")
-  color <- xml2::xml_find_first(s, ".//prop[@k='color']") |> xml2::xml_attr("v")
-
-  # Convertir color RGB a hexadecimal
-  rgb2hex <- function(color) {
-    rgb <- strsplit(color, ",")
-    rgb <- rgb[[1]]
-    rgb <- as.numeric(rgb)
-    rgb(rgb[1], rgb[2], rgb[3], maxColorValue = 255)
+# Function to get the layers to copy
+get_layers_to_copy <- function(layers_to_copy, all_layers) {
+  all_layers <- setdiff(all_layers, c("raster_columns", "layer_styles"))
+  if (is.null(layers_to_copy)) {
+    layers_to_copy <- all_layers
+  } else {
+    missing_layers <- setdiff(layers_to_copy, all_layers)
+    if (length(missing_layers) > 0) {
+      stop("The following layers do not exist in the destination GeoPackage: ",
+           paste(missing_layers, collapse = ", "))
+    }
   }
-  color2 <- sapply(color, rgb2hex)
-  names(color2) <- name
-  color2 <- color2[order(as.numeric(names(color2)))]
+  layers_to_copy
+}
 
-  # Filtrar categorías según los valores presentes en el ráster
-  values <- sort(terra::unique(r_clc)[, 1])
-  if (!is.null(values)) {
-    des <- des[id %in% values]
-    color2 <- color2[id %in% values]
-    id <- id[id %in% values]
+# Function to get existing styles
+get_existing_styles <- function(to, layers_in_to, style) {
+  if ("layer_styles" %in% layers_in_to) {
+    existing_styles <- suppressWarnings(sf::st_read(to, layer = "layer_styles", quiet = TRUE))
+  } else {
+    existing_styles <- style[0, ]  # Create an empty table with the same structure
   }
+}
 
-  # Crear el data frame de categorías
-  categories <- data.frame(
-    ID = id,
-    Descripcion = des,
-    Color = color2
+# Function that generates the table with the styles of the indicated layers
+generate_new_styles <- function(layers_to_copy, style, schema = NULL, database = NULL) {
+  n <- length(layers_to_copy)
+  new_styles <- do.call(rbind, replicate(n, style, simplify = FALSE))
+
+  for (i in seq_along(layers_to_copy)) {
+    new_styles$f_table_name[i] <- layers_to_copy[i]
+    if (!is.null(schema)) {
+      new_styles$f_table_schema[i] <- schema
+    }
+    if (!is.null(database)) {
+      new_styles$f_table_catalog[i] <- database
+      new_styles$useasdefault[i] <- TRUE
+    }
+    new_styles$styleSLD[i] <- gsub(
+      style$f_table_name,
+      layers_to_copy[i],
+      new_styles$styleSLD[i],
+      fixed = TRUE
+    )
+  }
+  new_styles
+}
+
+# Function to combine existing styles and new styles for layers to copy
+combine_styles <- function(existing_styles, new_styles, layers_to_copy, to) {
+  combined_styles <- rbind(
+    existing_styles[!(existing_styles$f_table_name %in% layers_to_copy), ],
+    new_styles
   )
-
-  return(categories)
+  sf::st_write(
+    obj = combined_styles,
+    dsn = to,
+    layer = "layer_styles",
+    append = FALSE,
+    quiet = TRUE
+  )
+  combined_styles
 }
 
 
 
+# Function to get all layers in PostGIS
+get_all_layers_pg <- function(conn, schema) {
+  query <- "
+  SELECT
+    table_schema AS schema_name,
+    table_name,
+    column_name AS geometry_column,
+    udt_name AS geometry_type
+  FROM information_schema.columns
+  WHERE udt_name IN ('geometry', 'geography');
+"
+  all_layers <- RPostgres::dbGetQuery(conn, query)
+  all_layers <- all_layers[all_layers$schema_name == schema, "table_name"]
+}
 
 
+# Function to check if 'layer_styles' table exists in PostGIS
+exist_layer_styles_pg <- function(conn, schema = "public") {
+  table <- "layer_styles"
+  query_check <- sprintf("
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_name = '%s' AND table_schema = '%s';",
+                         table, schema
+  )
+  table_exists <- RPostgres::dbGetQuery(conn, query_check)
 
-
+  if (nrow(table_exists) > 0) {
+    table
+  } else {
+    NULL
+  }
+}
 
 
 
@@ -116,49 +153,20 @@ filter_categories <- function(style, r_clc) {
 #'
 #' @export
 assign_styles_to_layers <- function(from, to, layers_to_copy = NULL, layer_name = NULL) {
-  # Usar la función común para obtener el estilo
   style <- read_style_from_source(from, layer_name)
 
-  # Leer las capas del GeoPackage destino
   all_layers <- sf::st_layers(to)$name
 
-  # Determinar las capas a las que aplicar los estilos
-  if (is.null(layers_to_copy)) {
-    layers_to_copy <- all_layers
-  } else {
-    # Verificar que las capas especificadas existan en el destino
-    missing_layers <- setdiff(layers_to_copy, all_layers)
-    if (length(missing_layers) > 0) {
-      stop("The following layers do not exist in the destination GeoPackage: ",
-           paste(missing_layers, collapse = ", "))
-    }
-  }
+  layers_to_copy <- get_layers_to_copy(layers_to_copy, all_layers)
 
-  # Preparar la tabla de estilos
-  n <- length(layers_to_copy)
-  my_style <- do.call(rbind, replicate(n, style, simplify = FALSE))
+  layers_in_to <- sf::st_layers(to)$name
+  existing_styles <- get_existing_styles(to, layers_in_to, style)
 
-  # Actualizar los nombres de tabla y SLD para cada capa
-  for (i in seq_along(layers_to_copy)) {
-    my_style$f_table_name[i] <- layers_to_copy[i]
-    my_style$styleSLD[i] <- gsub(
-      style$f_table_name,
-      layers_to_copy[i],
-      my_style$styleSLD[i],
-      fixed = TRUE
-    )
-  }
+  new_styles <- generate_new_styles(layers_to_copy, style)
 
-  # Escribir la tabla de estilos en el destino
-  sf::st_write(
-    obj = my_style,
-    dsn = to,
-    layer = "layer_styles",
-    append = FALSE,
-    quiet = TRUE
-  )
+  combined_styles <- combine_styles(existing_styles, new_styles, layers_to_copy, to)
 
-  invisible(my_style)  # Retornar la tabla de estilos actualizada
+  invisible(combined_styles)
 }
 
 
@@ -170,7 +178,9 @@ assign_styles_to_layers <- function(from, to, layers_to_copy = NULL, layer_name 
 #' GeoPackage. If no style is specified, the first style in the `layer_styles` table is applied.
 #'
 #' @param from A string representing the path to the source GeoPackage file.
-#' @param conn A database connection object to the destination PostGIS database (an active `DBI` connection).
+#' @param conn A database connection object to the destination PostGIS database.
+#' @param database A string, database name.
+#' @param schema A string, schema name.
 #' @param layers_to_copy An optional character vector specifying the names of layers
 #'   in the destination PostGIS database to which the styles should be applied.
 #'   If `NULL` (default), applies the style to all layers.
@@ -205,45 +215,21 @@ assign_styles_to_layers <- function(from, to, layers_to_copy = NULL, layer_name 
 #' }
 #'
 #' @export
-assign_styles_to_layers_pg <- function(from, conn, layers_to_copy = NULL, layer_name = NULL) {
-  # Usar la función común para obtener el estilo
+assign_styles_to_layers_pg <- function(from, conn, database, schema='public', layers_to_copy = NULL, layer_name = NULL) {
   style <- read_style_from_source(from, layer_name)
 
-  # Leer las capas de la base de datos PostGIS
-  query <- "SELECT table_name FROM information_schema.tables WHERE table_schema='public';"
-  layers_in_pg <- DBI::dbGetQuery(conn, query)$table_name
+  all_layers <- get_all_layers_pg(conn, schema)
 
-  # Determinar las capas a las que aplicar los estilos
-  if (is.null(layers_to_copy)) {
-    layers_to_copy <- layers_in_pg
-  } else {
-    # Verificar que las capas especificadas existan en el destino
-    missing_layers <- setdiff(layers_to_copy, layers_in_pg)
-    if (length(missing_layers) > 0) {
-      stop("The following layers do not exist in the PostGIS database: ",
-           paste(missing_layers, collapse = ", "))
-    }
-  }
+  layers_to_copy <- get_layers_to_copy(layers_to_copy, all_layers)
 
-  # Preparar la tabla de estilos
-  n <- length(layers_to_copy)
-  my_style <- do.call(rbind, replicate(n, style, simplify = FALSE))
+  layers_in_to <- exist_layer_styles_pg(conn, schema)
+  existing_styles <- get_existing_styles(conn, layers_in_to, style)
 
-  # Actualizar los nombres de tabla y SLD para cada capa
-  for (i in seq_along(layers_to_copy)) {
-    my_style$f_table_name[i] <- layers_to_copy[i]
-    my_style$styleSLD[i] <- gsub(
-      style$f_table_name,
-      layers_to_copy[i],
-      my_style$styleSLD[i],
-      fixed = TRUE
-    )
-  }
+  new_styles <- generate_new_styles(layers_to_copy, style, schema, database)
 
-  # Escribir la tabla de estilos en la base de datos PostGIS
-  DBI::dbWriteTable(conn, "layer_styles", my_style, append = TRUE, row.names = FALSE)
+  combined_styles <- combine_styles(existing_styles, new_styles, layers_to_copy, conn)
 
-  invisible(my_style)  # Retornar la tabla de estilos actualizada
+  invisible(combined_styles)
 }
 
 

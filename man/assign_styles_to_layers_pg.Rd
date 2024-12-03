@@ -7,6 +7,8 @@
 assign_styles_to_layers_pg(
   from,
   conn,
+  database,
+  schema = "public",
   layers_to_copy = NULL,
   layer_name = NULL
 )
@@ -14,7 +16,11 @@ assign_styles_to_layers_pg(
 \arguments{
 \item{from}{A string representing the path to the source GeoPackage file.}
 
-\item{conn}{A database connection object to the destination PostGIS database (an active `DBI` connection).}
+\item{conn}{A database connection object to the destination PostGIS database.}
+
+\item{database}{A string, database name.}
+
+\item{schema}{A string, schema name.}
 
 \item{layers_to_copy}{An optional character vector specifying the names of layers
 in the destination PostGIS database to which the styles should be applied.

@@ -1,20 +1,16 @@
 
-# Función común para extraer categorías y colores de un estilo
+# Function to extract categories and colors from a style
 extract_categories_and_colors <- function(style) {
-  # Leer el archivo XML del estilo QML
   st_xml <- xml2::read_xml(style$styleQML[1])
 
-  # Extraer las categorías
   categories <- xml2::xml_find_all(st_xml, "//category")
   id <- as.integer(xml2::xml_attr(categories, "value"))
   des <- xml2::xml_attr(categories, "label")
 
-  # Extraer colores de los símbolos
   s <- xml2::xml_find_all(st_xml, ".//symbols/symbol")
   name <- xml2::xml_attr(s, "name")
   color <- xml2::xml_find_first(s, ".//prop[@k='color']") |> xml2::xml_attr("v")
 
-  # Convertir color RGB a hexadecimal
   rgb2hex <- function(color) {
     rgb <- strsplit(color, ",")
     rgb <- rgb[[1]]
@@ -25,7 +21,7 @@ extract_categories_and_colors <- function(style) {
   names(color2) <- name
   color2 <- color2[order(as.numeric(names(color2)))]
 
-  return(list(id = id, descripcion = des, color = color2))
+  return(data.frame(id = id, description = des, color = color2))
 }
 
 
@@ -47,7 +43,7 @@ extract_categories_and_colors <- function(style) {
 #'
 #' @return A data frame (`categories`) containing the category IDs, descriptions,
 #' and associated colors for the values present in the raster.
-#' The data frame has three columns: `ID`, `Descripcion` (Description), and `Color` (HEX color codes).
+#' The data frame has three columns: `id`, `description`, and `color` (HEX color codes).
 #'
 #' @family transformation functions
 #'
@@ -69,35 +65,25 @@ extract_categories_and_colors <- function(style) {
 #'
 #' @export
 extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
-  # Leer el estilo desde el GeoPackage
   style <- sf::st_read(from, layer = "layer_styles", quiet = TRUE)
 
-  # Seleccionar el estilo basado en el nombre de la capa o el primero por defecto
   if (!is.null(layer_name)) {
     style <- style[style$f_table_name == layer_name, ]
     if (nrow(style) == 0) {
       stop("No style found for the specified layer name: ", layer_name)
     }
   } else {
-    style <- style[1, ]  # Seleccionar el primer estilo si no se especifica un nombre de capa
+    style <- style[1, ]
   }
 
-  # Usar la función común para extraer categorías y colores
-  extracted_data <- extract_categories_and_colors(style)
+  cat <- extract_categories_and_colors(style)
 
-  # Filtrar categorías según los valores presentes en el ráster
   values <- sort(terra::unique(r_clc)[, 1])
-  if (!is.null(values)) {
-    extracted_data$descripcion <- extracted_data$descripcion[extracted_data$id %in% values]
-    extracted_data$color <- extracted_data$color[extracted_data$id %in% values]
-    extracted_data$id <- extracted_data$id[extracted_data$id %in% values]
-  }
 
-  # Crear el data frame de categorías
-  categories <- data.frame(
-    ID = extracted_data$id,
-    Descripcion = extracted_data$descripcion,
-    Color = extracted_data$color
+  data.frame(
+    id = cat$id[cat$id %in% values],
+    description = cat$description[cat$id %in% values],
+    color = cat$color[cat$id %in% values]
   )
 
   return(categories)
@@ -121,7 +107,7 @@ extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
 #'
 #' @return A data frame (`categories`) containing the category IDs, descriptions,
 #' and associated colors for the values present in the raster.
-#' The data frame has three columns: `ID`, `Descripcion` (Description), and `Color` (HEX color codes).
+#' The data frame has three columns: `ID`, `description` (Description), and `Color` (HEX color codes).
 #'
 #' @family transformation functions
 #'
@@ -157,21 +143,21 @@ extract_categories_from_style_pg <- function(conn, r_clc, layer_name = NULL) {
   }
 
   # Usar la función común para extraer categorías y colores
-  extracted_data <- extract_categories_and_colors(style)
+  cat <- extract_categories_and_colors(style)
 
   # Filtrar categorías según los valores presentes en el ráster
   values <- sort(terra::unique(r_clc)[, 1])
   if (!is.null(values)) {
-    extracted_data$descripcion <- extracted_data$descripcion[extracted_data$id %in% values]
-    extracted_data$color <- extracted_data$color[extracted_data$id %in% values]
-    extracted_data$id <- extracted_data$id[extracted_data$id %in% values]
+    cat$description <- cat$description[cat$id %in% values]
+    cat$color <- cat$color[cat$id %in% values]
+    cat$id <- cat$id[cat$id %in% values]
   }
 
   # Crear el data frame de categorías
   categories <- data.frame(
-    ID = extracted_data$id,
-    Descripcion = extracted_data$descripcion,
-    Color = extracted_data$color
+    ID = cat$id,
+    description = cat$description,
+    Color = cat$color
   )
 
   return(categories)
