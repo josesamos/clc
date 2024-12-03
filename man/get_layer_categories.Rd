@@ -23,8 +23,8 @@ It obtains them from the first defined style.
 }
 \seealso{
 Other transformation functions: 
-\code{\link{clip_multipoligon}()},
 \code{\link{copy_styles_layer}()},
-\code{\link{copy_styles_layer_names}()}
+\code{\link{copy_styles_layer_names}()},
+\code{\link{safe_clip_multipolygon}()}
 }
 \concept{transformation functions}

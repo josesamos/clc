@@ -23,8 +23,8 @@ Assigns the first style from the source to all layers in the destination.
 }
 \seealso{
 Other transformation functions: 
-\code{\link{clip_multipoligon}()},
 \code{\link{copy_styles_layer_names}()},
-\code{\link{get_layer_categories}()}
+\code{\link{get_layer_categories}()},
+\code{\link{safe_clip_multipolygon}()}
 }
 \concept{transformation functions}
