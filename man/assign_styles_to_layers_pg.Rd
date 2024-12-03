@@ -14,7 +14,9 @@ assign_styles_to_layers_pg(
 )
 }
 \arguments{
-\item{from}{A string representing the path to the source GeoPackage file.}
+\item{from}{A data source for the input styles. This can be:
+- A string representing the path to a GeoPackage file.
+- A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
 \item{conn}{A database connection object to the destination PostGIS database.}
 
@@ -41,26 +43,60 @@ GeoPackage. If no style is specified, the first style in the `layer_styles` tabl
 }
 \examples{
 \dontrun{
-# Paths to GeoPackage file
 source_gpkg <- "source.gpkg"
-
-# Connect to PostGIS database using an active connection
-conn <- DBI::dbConnect(RPostgres::Postgres(),
-                       dbname = "mydb", user = "myuser", host = "localhost", password = "mypassword")
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
 
 # Assign styles to all layers using the first style
 assign_styles_to_layers_pg(from = source_gpkg, conn = conn)
 
 # Assign styles to specific layers using the first style
 assign_styles_to_layers_pg(from = source_gpkg, conn = conn,
-                         layers_to_copy = c("layer1", "layer2"))
+                        layers_to_copy = c("layer1", "layer2"))
 
 # Assign a specific style based on layer name to all layers
 assign_styles_to_layers_pg(from = source_gpkg, conn = conn,
-                         layer_name = "layerX")
+                        layer_name = "layerX")
 
-# Don't forget to disconnect the database connection after usage
-DBI::dbDisconnect(conn)
+RPostgres::dbDisconnect(conn)
+
+
+source_conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb1',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb2',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+
+# Assign styles to all layers using the first style
+assign_styles_to_layers_pg(from = source_conn, conn = conn)
+
+# Assign styles to specific layers using the first style
+assign_styles_to_layers_pg(from = source_conn, conn = conn,
+                        layers_to_copy = c("layer1", "layer2"))
+
+# Assign a specific style based on layer name to all layers
+assign_styles_to_layers_pg(from = source_conn, conn = conn,
+                        layer_name = "layerX")
+
+RPostgres::dbDisconnect(source_conn)
+RPostgres::dbDisconnect(conn)
 }
 
 }

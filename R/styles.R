@@ -21,7 +21,7 @@ get_layers_to_copy <- function(layers_to_copy, all_layers) {
   } else {
     missing_layers <- setdiff(layers_to_copy, all_layers)
     if (length(missing_layers) > 0) {
-      stop("The following layers do not exist in the destination GeoPackage: ",
+      stop("The following layers do not exist in the destination: ",
            paste(missing_layers, collapse = ", "))
     }
   }
@@ -49,7 +49,6 @@ generate_new_styles <- function(layers_to_copy, style, schema = NULL, database =
     }
     if (!is.null(database)) {
       new_styles$f_table_catalog[i] <- database
-      new_styles$useasdefault[i] <- TRUE
     }
     new_styles$styleSLD[i] <- gsub(
       style$f_table_name,
@@ -58,15 +57,26 @@ generate_new_styles <- function(layers_to_copy, style, schema = NULL, database =
       fixed = TRUE
     )
   }
+  if (!is.null(database)) {
+    new_styles$useasdefault <- TRUE
+    new_styles$id <- 1
+  }
   new_styles
 }
 
 # Function to combine existing styles and new styles for layers to copy
 combine_styles <- function(existing_styles, new_styles, layers_to_copy, to) {
+  if ('id' %in% names(new_styles)) {
+    names(new_styles) <- tolower(names(new_styles))
+    new_styles <- new_styles[, c('id', setdiff(names(new_styles), 'id'))]
+  }
   combined_styles <- rbind(
     existing_styles[!(existing_styles$f_table_name %in% layers_to_copy), ],
     new_styles
   )
+  if ('id' %in% names(combined_styles)) {
+    combined_styles$id <- 1:nrow(combined_styles)
+  }
   sf::st_write(
     obj = combined_styles,
     dsn = to,
@@ -122,7 +132,9 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' but a specific style can be selected based on the layer name from the source GeoPackage.
 #' If no style is specified, the first style in the `layer_styles` table is applied.
 #'
-#' @param from A string representing the path to the source GeoPackage file.
+#' @param from A data source for the input styles. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
 #' @param to A string representing the path to the destination GeoPackage file.
 #' @param layers_to_copy An optional character vector specifying the names of layers
 #'   in the destination GeoPackage to which the styles should be applied.
@@ -135,7 +147,6 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #'
 #' @examples
 #' \dontrun{
-#' # Paths to GeoPackage files
 #' source_gpkg <- "source.gpkg"
 #' dest_gpkg <- "destination.gpkg"
 #'
@@ -149,6 +160,29 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' # Assign a specific style based on layer name to all layers
 #' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
 #'                         layer_name = "layerX")
+#'
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'postgres',
+#'   password = 'postgres'
+#' )
+#' dest_gpkg <- "destination.gpkg"
+#'
+#' # Assign styles to all layers using the first style
+#' assign_styles_to_layers(from = conn, to = dest_gpkg)
+#'
+#' # Assign styles to specific layers using the first style
+#' assign_styles_to_layers(from = conn, to = dest_gpkg,
+#'                         layers_to_copy = c("layer1", "layer2"))
+#'
+#' # Assign a specific style based on layer name to all layers
+#' assign_styles_to_layers(from = conn, to = dest_gpkg,
+#'                         layer_name = "layerX")
+#'
+#' RPostgres::dbDisconnect(conn)
 #' }
 #'
 #' @export
@@ -177,7 +211,9 @@ assign_styles_to_layers <- function(from, to, layers_to_copy = NULL, layer_name 
 #' destination. A specific style can be selected based on the layer name from the source
 #' GeoPackage. If no style is specified, the first style in the `layer_styles` table is applied.
 #'
-#' @param from A string representing the path to the source GeoPackage file.
+#' @param from A data source for the input styles. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
 #' @param conn A database connection object to the destination PostGIS database.
 #' @param database A string, database name.
 #' @param schema A string, schema name.
@@ -192,26 +228,60 @@ assign_styles_to_layers <- function(from, to, layers_to_copy = NULL, layer_name 
 #'
 #' @examples
 #' \dontrun{
-#' # Paths to GeoPackage file
 #' source_gpkg <- "source.gpkg"
-#'
-#' # Connect to PostGIS database using an active connection
-#' conn <- DBI::dbConnect(RPostgres::Postgres(),
-#'                        dbname = "mydb", user = "myuser", host = "localhost", password = "mypassword")
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'postgres',
+#'   password = 'postgres'
+#' )
 #'
 #' # Assign styles to all layers using the first style
 #' assign_styles_to_layers_pg(from = source_gpkg, conn = conn)
 #'
 #' # Assign styles to specific layers using the first style
 #' assign_styles_to_layers_pg(from = source_gpkg, conn = conn,
-#'                          layers_to_copy = c("layer1", "layer2"))
+#'                         layers_to_copy = c("layer1", "layer2"))
 #'
 #' # Assign a specific style based on layer name to all layers
 #' assign_styles_to_layers_pg(from = source_gpkg, conn = conn,
-#'                          layer_name = "layerX")
+#'                         layer_name = "layerX")
 #'
-#' # Don't forget to disconnect the database connection after usage
-#' DBI::dbDisconnect(conn)
+#' RPostgres::dbDisconnect(conn)
+#'
+#'
+#' source_conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb1',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'postgres',
+#'   password = 'postgres'
+#' )
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb2',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'postgres',
+#'   password = 'postgres'
+#' )
+#'
+#' # Assign styles to all layers using the first style
+#' assign_styles_to_layers_pg(from = source_conn, conn = conn)
+#'
+#' # Assign styles to specific layers using the first style
+#' assign_styles_to_layers_pg(from = source_conn, conn = conn,
+#'                         layers_to_copy = c("layer1", "layer2"))
+#'
+#' # Assign a specific style based on layer name to all layers
+#' assign_styles_to_layers_pg(from = source_conn, conn = conn,
+#'                         layer_name = "layerX")
+#'
+#' RPostgres::dbDisconnect(source_conn)
+#' RPostgres::dbDisconnect(conn)
 #' }
 #'
 #' @export

@@ -7,7 +7,9 @@
 assign_styles_to_layers(from, to, layers_to_copy = NULL, layer_name = NULL)
 }
 \arguments{
-\item{from}{A string representing the path to the source GeoPackage file.}
+\item{from}{A data source for the input styles. This can be:
+- A string representing the path to a GeoPackage file.
+- A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
 \item{to}{A string representing the path to the destination GeoPackage file.}
 
@@ -30,7 +32,6 @@ If no style is specified, the first style in the `layer_styles` table is applied
 }
 \examples{
 \dontrun{
-# Paths to GeoPackage files
 source_gpkg <- "source.gpkg"
 dest_gpkg <- "destination.gpkg"
 
@@ -44,6 +45,29 @@ assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
 # Assign a specific style based on layer name to all layers
 assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
                         layer_name = "layerX")
+
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+dest_gpkg <- "destination.gpkg"
+
+# Assign styles to all layers using the first style
+assign_styles_to_layers(from = conn, to = dest_gpkg)
+
+# Assign styles to specific layers using the first style
+assign_styles_to_layers(from = conn, to = dest_gpkg,
+                        layers_to_copy = c("layer1", "layer2"))
+
+# Assign a specific style based on layer name to all layers
+assign_styles_to_layers(from = conn, to = dest_gpkg,
+                        layer_name = "layerX")
+
+RPostgres::dbDisconnect(conn)
 }
 
 }
