@@ -4,7 +4,7 @@ test_that("clip_vector handles intersecting geometries", {
     geometry = sf::st_sfc(sf::st_point(c(0.5, 0.5)), sf::st_point(c(1.5, 1.5)), sf::st_point(c(2.5, 2.5)))
   ), crs = 4326)
 
-  polygon <- sf::st_as_sf(data.frame(id = 1, geometry = sf::st_sfc(st_polygon(list(
+  polygon <- sf::st_as_sf(data.frame(id = 1, geometry = sf::st_sfc(sf::st_polygon(list(
     rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0))
   )))), crs = 4326)
 
@@ -39,12 +39,10 @@ test_that("clip_vector handles CRS transformations", {
     geometry = sf::st_sfc(sf::st_point(c(0.5, 0.5)), sf::st_point(c(1.5, 1.5)), sf::st_point(c(2.5, 2.5)))
   ), crs = 4326)
 
-  polygon <- sf::st_as_sf(data.frame(
-    id = 1,
-    geometry = sf::st_sfc(sf::st_polygon(list(
-      rbind(c(0, 0), c(200000, 0), c(200000, 200000), c(0, 200000), c(0, 0))
-    )))
-  ), crs = 32630)
+  polygon <- sf::st_as_sf(data.frame(id = 1, geometry = sf::st_sfc(sf::st_polygon(list(
+    rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0))
+  )))), crs = 4326)
+  polygon <- sf::st_transform(polygon, crs = 32630)
 
   result <- clip_vector(vector, polygon)
 
@@ -101,7 +99,7 @@ test_that("safe_clip_multipolygon handles invalid MULTIPOLYGON encoding",
             result <- safe_clip_multipolygon(vector, polygon)
 
             expect_s3_class(result, "sf")
-            expect_equal(nrow(result), 1)
+            expect_equal(nrow(result), 2)
           })
 
 test_that("safe_clip_multipolygon handles CRS transformations", {
@@ -114,23 +112,15 @@ test_that("safe_clip_multipolygon handles CRS transformations", {
     )))
   ), crs = 4326)
 
-  polygon <- sf::st_as_sf(data.frame(
-    id = 1,
-    geometry = sf::st_sfc(sf::st_polygon(list(
-      rbind(
-        c(100000, 100000),
-        c(200000, 100000),
-        c(200000, 200000),
-        c(100000, 200000),
-        c(100000, 100000)
-      )
-    )))
-  ), crs = 32630)
+  polygon <- sf::st_as_sf(data.frame(id = 1, geometry = sf::st_sfc(sf::st_polygon(list(
+    rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0))
+  )))), crs = 4326)
+  polygon <- sf::st_transform(polygon, crs = 32630)
 
   result <- safe_clip_multipolygon(vector, polygon)
 
   expect_s3_class(result, "sf")
-  expect_equal(nrow(result), 0)
+  expect_equal(nrow(result), 2)
   expect_equal(sf::st_crs(result), sf::st_crs(polygon))
 })
 

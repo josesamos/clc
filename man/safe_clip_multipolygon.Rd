@@ -30,31 +30,27 @@ This solution is inspired by a discussion on handling WKB type errors in R:
 }
 \examples{
 
-# Example data
 vector <- sf::st_as_sf(data.frame(
   id = 1:2,
   geometry = sf::st_sfc(
-    st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))),
-    st_polygon(list(rbind(c(1, 1), c(3, 1), c(3, 3), c(1, 3), c(1, 1))))
+    sf::st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))),
+    sf::st_polygon(list(rbind(c(1, 1), c(3, 1), c(3, 3), c(1, 3), c(1, 1))))
   )
 ), crs = 4326)
 
 polygon <- sf::st_as_sf(data.frame(
   id = 1,
-  geometry = sf::st_sfc(st_polygon(list(rbind(
+  geometry = sf::st_sfc(sf::st_polygon(list(rbind(
     c(1, 1), c(2, 1), c(2, 2), c(1, 2), c(1, 1)
   ))))
 ), crs = 4326)
 
-# Clip the vector using the polygon
-result <- safe_clip_multipolygon(vector, polygon)
-print(result)
+sc <- safe_clip_multipolygon(vector, polygon)
 
 }
 \seealso{
 Other transformation functions: 
-\code{\link{copy_styles_layer}()},
-\code{\link{copy_styles_layer_names}()},
-\code{\link{get_layer_categories}()}
+\code{\link{extract_categories_from_style}()},
+\code{\link{extract_categories_from_style_pg}()}
 }
 \concept{transformation functions}

@@ -22,24 +22,22 @@ ensuring the output is in the same CRS as the input polygon.
 }
 \examples{
 
-# Example data
 vector <- sf::st_as_sf(data.frame(
   id = 1:3,
   geometry = sf::st_sfc(
-    st_point(c(0.5, 0.5)),
-    st_point(c(1.5, 1.5)),
-    st_point(c(2.5, 2.5))
+    sf::st_point(c(0.5, 0.5)),
+    sf::st_point(c(1.5, 1.5)),
+    sf::st_point(c(2.5, 2.5))
   )
 ), crs = 4326)
 
 polygon <- sf::st_as_sf(data.frame(
   id = 1,
-  geometry = sf::st_sfc(st_polygon(list(rbind(
+  geometry = sf::st_sfc(sf::st_polygon(list(rbind(
     c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)
   ))))
 ), crs = 4326)
 
-# Clip the vector using the polygon
-clipped_vector <- clip_vector(vector, polygon)
+cv <- clip_vector(vector, polygon)
 
 }

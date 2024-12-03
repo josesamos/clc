@@ -12,35 +12,38 @@
 #'
 #' @examples
 #'
-#' # Example data
 #' vector <- sf::st_as_sf(data.frame(
 #'   id = 1:3,
 #'   geometry = sf::st_sfc(
-#'     st_point(c(0.5, 0.5)),
-#'     st_point(c(1.5, 1.5)),
-#'     st_point(c(2.5, 2.5))
+#'     sf::st_point(c(0.5, 0.5)),
+#'     sf::st_point(c(1.5, 1.5)),
+#'     sf::st_point(c(2.5, 2.5))
 #'   )
 #' ), crs = 4326)
 #'
 #' polygon <- sf::st_as_sf(data.frame(
 #'   id = 1,
-#'   geometry = sf::st_sfc(st_polygon(list(rbind(
+#'   geometry = sf::st_sfc(sf::st_polygon(list(rbind(
 #'     c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)
 #'   ))))
 #' ), crs = 4326)
 #'
-#' # Clip the vector using the polygon
-#' clipped_vector <- clip_vector(vector, polygon)
+#' cv <- clip_vector(vector, polygon)
 #'
 #' @export
 clip_vector <- function(vector, polygon) {
-  if (!sf::st_crs(vector) == sf::st_crs(polygon)) {
+  crs_polygon <- sf::st_crs(polygon)
+  if (sf::st_crs(vector) != crs_polygon) {
     polygon <- sf::st_transform(polygon, sf::st_crs(vector))
   }
-  res <- sf::st_intersection(vector, polygon)
+  # avoid warning attribute variables are assumed to be spatially constant...
+  sf::st_agr(vector) = "constant"
+  sf::st_agr(polygon) = "constant"
+  # closed: the edges of the polygon are considered as part of the polygon
+  res <- sf::st_intersection(vector, polygon, model = "closed")
   res <- res[names(vector)]
-  if (!sf::st_crs(vector) == sf::st_crs(polygon)) {
-    res <- sf::st_transform(res, sf::st_crs(polygon))
+  if (sf::st_crs(vector) != crs_polygon) {
+    res <- sf::st_transform(res, crs_polygon)
   }
   res
 }
@@ -69,25 +72,22 @@ clip_vector <- function(vector, polygon) {
 #'
 #' @examples
 #'
-#' # Example data
 #' vector <- sf::st_as_sf(data.frame(
 #'   id = 1:2,
 #'   geometry = sf::st_sfc(
-#'     st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))),
-#'     st_polygon(list(rbind(c(1, 1), c(3, 1), c(3, 3), c(1, 3), c(1, 1))))
+#'     sf::st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))),
+#'     sf::st_polygon(list(rbind(c(1, 1), c(3, 1), c(3, 3), c(1, 3), c(1, 1))))
 #'   )
 #' ), crs = 4326)
 #'
 #' polygon <- sf::st_as_sf(data.frame(
 #'   id = 1,
-#'   geometry = sf::st_sfc(st_polygon(list(rbind(
+#'   geometry = sf::st_sfc(sf::st_polygon(list(rbind(
 #'     c(1, 1), c(2, 1), c(2, 2), c(1, 2), c(1, 1)
 #'   ))))
 #' ), crs = 4326)
 #'
-#' # Clip the vector using the polygon
-#' result <- safe_clip_multipolygon(vector, polygon)
-#' print(result)
+#' sc <- safe_clip_multipolygon(vector, polygon)
 #'
 #' @export
 safe_clip_multipolygon <- function(vector, polygon) {
