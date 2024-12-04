@@ -1,4 +1,17 @@
-# Function to process rasterization from a vector layer in sf format
+#' Rasterize a vector layer
+#'
+#' Converts a vector layer (in sf format) into a raster layer using a specified field
+#' and either a base raster or a resolution.
+#'
+#' @param vector_layer A vector layer in `sf` format to be rasterized.
+#' @param field The field in the vector layer used to assign values in the raster.
+#' @param base_raster (Optional) A raster object to use as the base for rasterization.
+#' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
+#' @return A raster object created from the vector layer.
+#' @details The function requires either `base_raster` or `resolution` to be provided.
+#' If both are missing, an error is raised.
+#' @keywords internal
+#' @noRd
 process_vector_to_raster <- function(vector_layer,
                                      field,
                                      base_raster = NULL,

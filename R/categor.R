@@ -1,6 +1,15 @@
-
-
-# Function to extract categories and colors from a style
+#' Extract categories and colors from a style
+#'
+#' Parses a QGIS QML style file to extract categories and their associated colors.
+#'
+#' @param style A data frame containing a QGIS QML style in the column `styleQML`.
+#' The first entry is used for extraction.
+#' @return A data frame with the following columns:
+#' - `id`: Integer category IDs.
+#' - `description`: Labels associated with each category.
+#' - `color`: Hexadecimal representation of the colors for each category.
+#' @keywords internal
+#' @noRd
 extract_categories_and_colors <- function(style) {
   st_xml <- xml2::read_xml(style$styleQML[1])
 
