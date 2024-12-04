@@ -4,14 +4,24 @@
 \alias{vector_to_raster}
 \title{Convert a CORINE Land Cover Vector Layer to Raster Format}
 \usage{
-vector_to_raster(from, layer_name, base_raster = NULL, resolution = NULL)
+vector_to_raster(
+  from,
+  layer_name,
+  field,
+  base_raster = NULL,
+  resolution = NULL
+)
 }
 \arguments{
-\item{from}{A string representing the path to the source **GeoPackage** file containing the vector layer.}
+\item{from}{A data source for the input styles. This can be:
+- A string representing the path to a GeoPackage file.
+- A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
-\item{layer_name}{A string representing the name of the vector layer in the **GeoPackage** to be converted to raster.}
+\item{layer_name}{A string representing the name of the vector layer in the GeoPackage to be converted to raster.}
 
-\item{base_raster}{A **terra** raster object to use as the base for the output raster. If `NULL`, the function will
+\item{field}{A string representing the name of the layer field from which the values for the raster layer will be taken.}
+
+\item{base_raster}{A `terra` raster object to use as the base for the output raster. If `NULL`, the function will
 generate a new raster using the dimensions of the vector layer and the provided resolution.}
 
 \item{resolution}{A numeric value specifying the resolution of the raster (in meters). This is used to generate
@@ -19,25 +29,60 @@ a new raster if no `base_raster` is provided. The function will automatically ca
 the vector layer.}
 }
 \value{
-A **terra** raster object representing the converted vector layer into raster format.
+A `terra` raster object representing the converted vector layer into raster format.
 }
 \description{
 This function converts a vector layer representing **CORINE Land Cover (CLC)**
-data, stored in a **GeoPackage**, into a **raster** format using either an
+data, stored in a GeoPackage or in PostGIS, into a raster format using either an
 existing raster as a base or, if no base raster is provided, generating a new
 raster based on the extent and resolution of the vector layer.
 }
 \examples{
 \dontrun{
-# Path to the source GeoPackage
 source_gpkg <- "source.gpkg"
 
 # Convert vector layer to raster using a base raster
 base_raster <- terra::rast("base_raster.tif")
-raster_result <- vector_to_raster(from = source_gpkg, layer_name = "CLC_layer", base_raster = base_raster)
+raster_result <- vector_to_raster(
+  from = source_gpkg,
+  layer_name = "CLC_layer",
+  field = "CLC",
+  base_raster = base_raster
+)
 
 # Convert vector layer to raster with a specified resolution
-raster_result_res <- vector_to_raster(from = source_gpkg, layer_name = "CLC_layer", resolution = 100)
+raster_result_res <- vector_to_raster(
+  from = source_gpkg,
+  layer_name = "CLC_layer",
+  field = "CLC",
+  resolution = 100
+)
+
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+
+# Convert vector layer to raster using a base raster
+base_raster <- terra::rast("base_raster.tif")
+raster_result <- vector_to_raster(
+  from = conn,
+  layer_name = "CLC_layer",
+  field = "CLC",
+  base_raster = base_raster
+)
+
+# Convert vector layer to raster with a specified resolution
+raster_result_res <- vector_to_raster(
+  from = conn,
+  layer_name = "CLC_layer",
+  field = "CLC",
+  resolution = 100
+)
 }
 
 }

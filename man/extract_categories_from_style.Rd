@@ -33,18 +33,39 @@ provided, it defaults to using the first style in the `layer_styles` table.
 }
 \examples{
 \dontrun{
-# Path to GeoPackage file
 source_gpkg <- "source.gpkg"
 
-# Load the raster layer (e.g., CORINE Land Cover)
-library(terra)
-r_clc <- rast("clc_raster.tif")
+r_clc <- terra::rast("clc_raster.tif")
 
-# Extract categories from the GeoPackage style layer and the raster
+# Extract categories from the style layer and the raster
 categories <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc)
 
 # Extract categories for a specific layer
-categories_layerX <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc, layer_name = "layerX")
+categories_layerX <- extract_categories_from_style(
+  from = source_gpkg,
+  r_clc = r_clc,
+  layer_name = "layerX"
+)
+source_gpkg <- "source.gpkg"
+
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+
+# Extract categories from the style layer and the raster
+categories <- extract_categories_from_style(from = conn, r_clc = r_clc)
+
+# Extract categories for a specific layer
+categories_layerX <- extract_categories_from_style(
+  from = conn,
+  r_clc = r_clc,
+  layer_name = "layerX"
+)
 }
 
 }

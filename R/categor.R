@@ -1,4 +1,5 @@
 
+
 # Function to extract categories and colors from a style
 extract_categories_and_colors <- function(style) {
   st_xml <- xml2::read_xml(style$styleQML[1])
@@ -21,7 +22,11 @@ extract_categories_and_colors <- function(style) {
   names(color2) <- name
   color2 <- color2[order(as.numeric(names(color2)))]
 
-  return(data.frame(id = id, description = des, color = color2))
+  return(data.frame(
+    id = id,
+    description = des,
+    color = color2
+  ))
 }
 
 
@@ -51,23 +56,43 @@ extract_categories_and_colors <- function(style) {
 #'
 #' @examples
 #' \dontrun{
-#' # Path to GeoPackage file
 #' source_gpkg <- "source.gpkg"
 #'
-#' # Load the raster layer (e.g., CORINE Land Cover)
-#' library(terra)
-#' r_clc <- rast("clc_raster.tif")
+#' r_clc <- terra::rast("clc_raster.tif")
 #'
-#' # Extract categories from the GeoPackage style layer and the raster
+#' # Extract categories from the style layer and the raster
 #' categories <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc)
 #'
 #' # Extract categories for a specific layer
-#' categories_layerX <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc, layer_name = "layerX")
+#' categories_layerX <- extract_categories_from_style(
+#'   from = source_gpkg,
+#'   r_clc = r_clc,
+#'   layer_name = "layerX"
+#' )
+#' source_gpkg <- "source.gpkg"
+#'
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'postgres',
+#'   password = 'postgres'
+#' )
+#'
+#' # Extract categories from the style layer and the raster
+#' categories <- extract_categories_from_style(from = conn, r_clc = r_clc)
+#'
+#' # Extract categories for a specific layer
+#' categories_layerX <- extract_categories_from_style(
+#'   from = conn,
+#'   r_clc = r_clc,
+#'   layer_name = "layerX"
+#' )
 #' }
 #'
 #' @export
 extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
-
   style <- read_style_from_source(from, layer_name)
 
   cat <- extract_categories_and_colors(style)

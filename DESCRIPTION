@@ -16,11 +16,13 @@ URL: https://josesamos.github.io/clc/, https://github.com/josesamos/clc
 BugReports: https://github.com/josesamos/clc/issues
 Imports: 
     gdalUtilities,
+    RPostgres,
     sf,
     terra,
     xml2
 Suggests: 
     knitr,
+    purrr,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: 
