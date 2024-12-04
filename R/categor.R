@@ -39,45 +39,33 @@ extract_categories_and_colors <- function(style) {
 }
 
 
-
-#' Extract Categories from a Style Layer in a GeoPackage Based on Layer Name
+#' Extract Categories from a Style Layer Based on Layer Name
 #'
 #' This function extracts the categories (labels and associated colors) from the
-#' `layer_styles` layer of a GeoPackage. The style information is used to create
-#' a mapping between category IDs, descriptions, and colors for a given raster layer.
+#' `layer_styles` layer of a GeoPackage or PostGIS database. The style information
+#' is used to create a mapping between category IDs, descriptions, and colors.
 #'
 #' The function will use the style for the specified layer name, or if no name is
 #' provided, it defaults to using the first style in the `layer_styles` table.
 #'
+#' The result can be filtered by considering only the specified values, provided
+#' a set other than NULL is assigned to the `values` variable.
+#'
 #' @param from A data source for the input styles. This can be:
 #'   - A string representing the path to a GeoPackage file.
 #'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
-#' @param r_clc A `terra` raster object containing the land cover data.
 #' @param layer_name An optional string representing the name of the layer from the source
 #'   `layer_styles` whose style should be applied. If `NULL` (default), applies the
 #'   first style.
+#' @param values The set of values used to filter the results; filtering is applied only if this set
+#'   is not NULL.
 #'
 #' @return A data frame containing the category IDs, descriptions, and associated
 #' colors for the values present in the raster.
 #' The data frame has three columns: `id`, `description`, and `color` (HEX color codes).
 #'
-#' @family transformation functions
-#'
 #' @examples
 #' \dontrun{
-#' source_gpkg <- "source.gpkg"
-#'
-#' r_clc <- terra::rast("clc_raster.tif")
-#'
-#' # Extract categories from the style layer and the raster
-#' categories <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc)
-#'
-#' # Extract categories for a specific layer
-#' categories_layerX <- extract_categories_from_style(
-#'   from = source_gpkg,
-#'   r_clc = r_clc,
-#'   layer_name = "layerX"
-#' )
 #' source_gpkg <- "source.gpkg"
 #'
 #' conn <- RPostgres::dbConnect(
@@ -89,28 +77,37 @@ extract_categories_and_colors <- function(style) {
 #'   password = 'postgres'
 #' )
 #'
-#' # Extract categories from the style layer and the raster
-#' categories <- extract_categories_from_style(from = conn, r_clc = r_clc)
+#' r_clc <- terra::rast("clc_raster.tif")
+#' values <- sort(terra::unique(r_clc)[, 1])
 #'
-#' # Extract categories for a specific layer
+#' # ex1
+#' categories <- extract_categories_from_style(from = source_gpkg, values = values)
+#'
+#' # ex2
+#' categories_layerX <- extract_categories_from_style(
+#'   from = source_gpkg,
+#'   layer_name = "layerX"
+#' )
+#'
+#' # ex3
+#' categories <- extract_categories_from_style(from = conn)
+#'
+#' # ex4
 #' categories_layerX <- extract_categories_from_style(
 #'   from = conn,
-#'   r_clc = r_clc,
-#'   layer_name = "layerX"
+#'   layer_name = "layerX",
+#'   values = values
 #' )
 #' }
 #'
 #' @export
-extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
+extract_categories_from_style <- function(from, layer_name = NULL, values = NULL) {
   style <- read_style_from_source(from, layer_name)
 
   cat <- extract_categories_and_colors(style)
 
-  values <- sort(terra::unique(r_clc)[, 1])
-
-  data.frame(
-    id = cat$id[cat$id %in% values],
-    description = cat$description[cat$id %in% values],
-    color = cat$color[cat$id %in% values]
-  )
+  if (!is.null(values)) {
+    cat <- cat[cat$id %in% values, ]
+  }
+  return(cat)
 }

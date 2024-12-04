@@ -1,6 +1,6 @@
 
 test_that("read_style_from_source works correctly", {
-  gpkg_path <- system.file("extdata", "clc_example.gpkg", package = "clc")
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
   expect_true(file.exists(gpkg_path))
 
@@ -8,7 +8,7 @@ test_that("read_style_from_source works correctly", {
   expect_s3_class(style, "data.frame")
   expect_true("f_table_name" %in% colnames(style))
 
-  layer_name <- "clc-zone"
+  layer_name <- "clc"
   style_specific <- read_style_from_source(gpkg_path, layer_name = layer_name)
   expect_s3_class(style_specific, "data.frame")
   expect_true(all(style_specific$f_table_name == layer_name))
@@ -22,7 +22,7 @@ test_that("read_style_from_source works correctly", {
 
 
 test_that("assign_styles_to_layers works correctly", {
-  original_gpkg <- system.file("extdata", "clc_example.gpkg", package = "clc")
+  original_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 
   expect_true(file.exists(original_gpkg))
 
@@ -45,20 +45,20 @@ test_that("assign_styles_to_layers works correctly", {
   assign_styles_to_layers(
     from = original_gpkg,
     to = temp_gpkg_no_styles,
-    layers_to_copy = c("clc-zone"),
-    layer_name = "clc-zone"
+    layers_to_copy = c("clc"),
+    layer_name = "clc"
   )
 
   styles_no_styles <- sf::st_read(temp_gpkg_no_styles, layer = "layer_styles", quiet = TRUE)
   expect_s3_class(styles_no_styles, "data.frame")
-  expect_true("clc-zone" %in% styles_no_styles$f_table_name)
+  expect_true("clc" %in% styles_no_styles$f_table_name)
 
   # Case 2: Update styles when they already exist in the destination
   assign_styles_to_layers(
     from = original_gpkg,
     to = temp_gpkg_with_styles,
     layers_to_copy = c("lanjaron"),
-    layer_name = "clc-zone"
+    layer_name = "clc"
   )
 
   # Verify that the styles for the selected layers have been updated

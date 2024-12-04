@@ -3,7 +3,8 @@
 #' Reads the style table from a specified source (GeoPackage or PostGIS).
 #'
 #' @param source The source to read from (GeoPackage file or PostGIS connection).
-#' @param layer_name (Optional) The name of the layer for which the style should be fetched.
+#' @param layer_name (Optional) The name of the layer for which the style should
+#' be fetched.
 #' @return A style object containing the fetched information.
 #' @keywords internal
 #' @noRd
@@ -148,7 +149,8 @@ combine_styles <- function(existing_styles, new_styles, layers_to_copy, to) {
 
 #' Get all layers from PostGIS
 #'
-#' Retrieves all layers with geometric or geographic data from a PostGIS database schema.
+#' Retrieves all layers with geometric or geographic data from a PostGIS database
+#' schema.
 #'
 #' @param conn A database connection object.
 #' @param schema The schema to query for layers.
@@ -172,7 +174,8 @@ get_all_layers_pg <- function(conn, schema) {
 
 #' Check if 'layer_styles' table exists in PostGIS
 #'
-#' Verifies whether the 'layer_styles' table exists in the specified schema of a PostGIS database.
+#' Verifies whether the 'layer_styles' table exists in the specified schema of a
+#' PostGIS database.
 #'
 #' @param conn A database connection object.
 #' @param schema The schema to check for the table. Defaults to "public".
@@ -197,12 +200,11 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 }
 
 
-
-#' Assign a Specified or Default Style to Layers in a GeoPackage Based on Layer Name
+#' Assign a Specified or Default Style to Layers Based on Layer Name
 #'
-#' This function copies the `layer_styles` from a source GeoPackage to a destination GeoPackage.
+#' This function copies the `layer_styles` from a source to a destination.
 #' By default, it assigns the first style from the source to all layers in the destination,
-#' but a specific style can be selected based on the layer name from the source GeoPackage.
+#' but a specific style can be selected based on the layer name from the source.
 #' If no style is specified, the first style in the `layer_styles` table is applied.
 #'
 #' @param from A data source for the input styles. This can be:
@@ -214,7 +216,7 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' @param database A string, database name, only in case the destination is in PostGIS.
 #' @param schema A string, schema name, only in case the destination is in PostGIS.
 #' @param layers_to_copy An optional character vector specifying the names of layers
-#'   in the destination GeoPackage to which the styles should be applied.
+#'   in the destination to which the styles should be applied.
 #'   If `NULL` (default), applies the style to all layers.
 #' @param layer_name An optional string representing the name of the layer from the source
 #'   `layer_styles` table whose style should be applied. If `NULL` (default), applies the
@@ -224,6 +226,7 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #'
 #' @examples
 #' \dontrun{
+#' # ex1
 #' source_gpkg <- "source.gpkg"
 #' dest_gpkg <- "destination.gpkg"
 #'
@@ -238,6 +241,7 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
 #'                         layer_name = "layerX")
 #'
+#' # ex2
 #' conn <- RPostgres::dbConnect(
 #'   RPostgres::Postgres(),
 #'   dbname = 'exampledb',
@@ -261,6 +265,7 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #'
 #' RPostgres::dbDisconnect(conn)
 #'
+#' # ex3
 #' source_gpkg <- "source.gpkg"
 #' conn <- RPostgres::dbConnect(
 #'   RPostgres::Postgres(),
@@ -285,6 +290,7 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' RPostgres::dbDisconnect(conn)
 #'
 #'
+#' # ex4
 #' source_conn <- RPostgres::dbConnect(
 #'   RPostgres::Postgres(),
 #'   dbname = 'exampledb1',

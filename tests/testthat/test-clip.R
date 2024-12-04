@@ -147,3 +147,44 @@ test_that("safe_clip_multipolygon returns empty for disjoint geometries",
             expect_s3_class(result, "sf")
             expect_equal(nrow(result), 0)
           })
+
+
+test_that("clip_vector works correctly", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  clc <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
+
+  clipped <- clip_vector(clc, lanjaron)
+
+  expect_s3_class(clipped, "sf")
+
+  expect_equal(colnames(clipped), colnames(clc))
+})
+
+test_that("safe_clip_multipolygon works correctly", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+  clc <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
+
+  clc_non_multipolygon <- suppressWarnings(sf::st_cast(clc, "POLYGON"))
+
+  clipped <- safe_clip_multipolygon(clc_non_multipolygon, lanjaron)
+
+  expect_s3_class(clipped, "sf")
+
+  expect_equal(colnames(clipped), colnames(clc))
+})
+
+test_that("clip_vector handles different CRS correctly", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+  clc <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
+
+  lanjaron_transformed <- sf::st_transform(lanjaron, 3857)
+
+  clipped <- clip_vector(clc, lanjaron_transformed)
+
+  expect_equal(sf::st_crs(clipped), sf::st_crs(lanjaron_transformed))
+})
+

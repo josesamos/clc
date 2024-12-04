@@ -37,6 +37,10 @@ data, stored in a GeoPackage or in PostGIS, into a raster format using either an
 existing raster as a base or, if no base raster is provided, generating a new
 raster based on the extent and resolution of the vector layer.
 }
+\details{
+The function requires either `base_raster` or `resolution` to be provided.
+If both are missing, an error is raised.
+}
 \examples{
 \dontrun{
 source_gpkg <- "source.gpkg"

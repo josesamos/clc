@@ -54,6 +54,8 @@ process_vector_to_raster <- function(vector_layer,
 #'   the vector layer.
 #'
 #' @return A `terra` raster object representing the converted vector layer into raster format.
+#' @details The function requires either `base_raster` or `resolution` to be provided.
+#' If both are missing, an error is raised.
 #'
 #' @examples
 #' \dontrun{
