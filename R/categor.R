@@ -35,14 +35,16 @@ extract_categories_and_colors <- function(style) {
 #' The function will use the style for the specified layer name, or if no name is
 #' provided, it defaults to using the first style in the `layer_styles` table.
 #'
-#' @param from A string representing the path to the source GeoPackage file.
+#' @param from A data source for the input styles. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
 #' @param r_clc A `terra` raster object containing the land cover data.
 #' @param layer_name An optional string representing the name of the layer from the source
 #'   `layer_styles` whose style should be applied. If `NULL` (default), applies the
 #'   first style.
 #'
-#' @return A data frame (`categories`) containing the category IDs, descriptions,
-#' and associated colors for the values present in the raster.
+#' @return A data frame containing the category IDs, descriptions, and associated
+#' colors for the values present in the raster.
 #' The data frame has three columns: `id`, `description`, and `color` (HEX color codes).
 #'
 #' @family transformation functions
@@ -65,16 +67,8 @@ extract_categories_and_colors <- function(style) {
 #'
 #' @export
 extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
-  style <- sf::st_read(from, layer = "layer_styles", quiet = TRUE)
 
-  if (!is.null(layer_name)) {
-    style <- style[style$f_table_name == layer_name, ]
-    if (nrow(style) == 0) {
-      stop("No style found for the specified layer name: ", layer_name)
-    }
-  } else {
-    style <- style[1, ]
-  }
+  style <- read_style_from_source(from, layer_name)
 
   cat <- extract_categories_and_colors(style)
 
@@ -85,80 +79,4 @@ extract_categories_from_style <- function(from, r_clc, layer_name = NULL) {
     description = cat$description[cat$id %in% values],
     color = cat$color[cat$id %in% values]
   )
-
-  return(categories)
-}
-
-
-#' Extract Categories from a PostGIS Database Style Layer
-#'
-#' This function extracts the categories (labels and associated colors) from the `layer_styles`
-#' table of a PostGIS database. The style information is used to create a mapping between
-#' category IDs, descriptions, and colors for a given raster layer.
-#'
-#' The function will use the style for the specified layer name, or if no name is
-#' provided, it defaults to using the first style in the `layer_styles` table.
-#'
-#' @param conn A database connection object to the destination PostGIS database (an active `DBI` connection).
-#' @param r_clc A `terra` raster object containing the land cover data.
-#' @param layer_name An optional string representing the name of the layer from the source
-#'   `layer_styles` whose style should be applied. If `NULL` (default), applies the
-#'   first style.
-#'
-#' @return A data frame (`categories`) containing the category IDs, descriptions,
-#' and associated colors for the values present in the raster.
-#' The data frame has three columns: `ID`, `description` (Description), and `Color` (HEX color codes).
-#'
-#' @family transformation functions
-#'
-#' @examples
-#' \dontrun{
-#' # Connect to PostGIS database
-#' conn <- DBI::dbConnect(RPostgres::Postgres(),
-#'                        dbname = "mydb", user = "myuser", host = "localhost", password = "mypassword")
-#'
-#' # Load the raster layer (e.g., CORINE Land Cover)
-#' library(terra)
-#' r_clc <- rast("clc_raster.tif")
-#'
-#' # Extract categories for a specific layer from PostGIS
-#' categories_pg <- extract_categories_from_style_pg(conn = conn, r_clc = r_clc)
-#' DBI::dbDisconnect(conn)
-#' }
-#'
-#' @export
-extract_categories_from_style_pg <- function(conn, r_clc, layer_name = NULL) {
-  # Leer la tabla de estilos desde la base de datos PostGIS
-  query <- "SELECT * FROM layer_styles"
-  style <- DBI::dbGetQuery(conn, query)
-
-  # Seleccionar el estilo basado en el nombre de la capa o el primero por defecto
-  if (!is.null(layer_name)) {
-    style <- style[style$f_table_name == layer_name, ]
-    if (nrow(style) == 0) {
-      stop("No style found for the specified layer name: ", layer_name)
-    }
-  } else {
-    style <- style[1, ]  # Seleccionar el primer estilo si no se especifica un nombre de capa
-  }
-
-  # Usar la función común para extraer categorías y colores
-  cat <- extract_categories_and_colors(style)
-
-  # Filtrar categorías según los valores presentes en el ráster
-  values <- sort(terra::unique(r_clc)[, 1])
-  if (!is.null(values)) {
-    cat$description <- cat$description[cat$id %in% values]
-    cat$color <- cat$color[cat$id %in% values]
-    cat$id <- cat$id[cat$id %in% values]
-  }
-
-  # Crear el data frame de categorías
-  categories <- data.frame(
-    ID = cat$id,
-    description = cat$description,
-    Color = cat$color
-  )
-
-  return(categories)
 }

@@ -7,7 +7,9 @@
 extract_categories_from_style(from, r_clc, layer_name = NULL)
 }
 \arguments{
-\item{from}{A string representing the path to the source GeoPackage file.}
+\item{from}{A data source for the input styles. This can be:
+- A string representing the path to a GeoPackage file.
+- A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
 \item{r_clc}{A `terra` raster object containing the land cover data.}
 
@@ -16,8 +18,8 @@ extract_categories_from_style(from, r_clc, layer_name = NULL)
 first style.}
 }
 \value{
-A data frame (`categories`) containing the category IDs, descriptions,
-and associated colors for the values present in the raster.
+A data frame containing the category IDs, descriptions, and associated
+colors for the values present in the raster.
 The data frame has three columns: `id`, `description`, and `color` (HEX color codes).
 }
 \description{
@@ -48,7 +50,6 @@ categories_layerX <- extract_categories_from_style(from = source_gpkg, r_clc = r
 }
 \seealso{
 Other transformation functions: 
-\code{\link{extract_categories_from_style_pg}()},
 \code{\link{safe_clip_multipolygon}()}
 }
 \concept{transformation functions}

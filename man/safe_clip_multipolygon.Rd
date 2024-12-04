@@ -50,7 +50,6 @@ sc <- safe_clip_multipolygon(vector, polygon)
 }
 \seealso{
 Other transformation functions: 
-\code{\link{extract_categories_from_style}()},
-\code{\link{extract_categories_from_style_pg}()}
+\code{\link{extract_categories_from_style}()}
 }
 \concept{transformation functions}
