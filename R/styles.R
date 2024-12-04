@@ -10,6 +10,17 @@ read_style_from_source <- function(source, layer_name = NULL) {
   } else {
     style <- style[1, ]
   }
+
+  # transform PostGIS style into GeoPackage style
+  if ("id" %in% names(style)) {
+    names_style_geo <- c("f_table_catalog", "f_table_schema", "f_table_name", "f_geometry_column",
+                         "styleName", "styleQML", "styleSLD", "useAsDefault", "description",
+                         "owner", "ui", "update_time")
+    style <- style[, tolower(names_style_geo)]
+    names(style) <- names_style_geo
+    style$f_table_catalog <- ''
+    style$f_table_schema <- ''
+  }
   return(style)
 }
 
