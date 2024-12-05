@@ -4,7 +4,7 @@
 \alias{clc_category}
 \title{`clc_category` S3 class}
 \usage{
-clc_category(style, values)
+clc_category(style, values = NULL)
 }
 \arguments{
 \item{style}{A data frame containing a QGIS QML style in the column `styleQML`.}

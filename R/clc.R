@@ -165,16 +165,16 @@ as_raster.clc <- function(clo,
 #' clo <- clc(dir = esa)
 #'
 #' r <- clo |>
-#'      save()
+#'      save_to()
 #'
 #' @export
-save <- function(clo, to, database, schema, layer_name)
-  UseMethod("save")
+save_to <- function(clo, to, database, schema, layer_name)
+  UseMethod("save_to")
 
 
-#' @rdname save
+#' @rdname save_to
 #' @export
-save.clc <- function(clo,
+save_to.clc <- function(clo,
                      to,
                      database = NULL,
                      schema = 'public',
