@@ -11,6 +11,7 @@ A vector.
 clc_code
 }
 \description{
-Each code represents a specific category at the most detailed level (Level 3) of the CLC system.
+Each code represents a specific category at the most detailed level (Level 3)
+of the CLC system.
 }
 \keyword{datasets}

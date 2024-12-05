@@ -42,11 +42,11 @@ test_that("assign_styles_to_layers works correctly", {
     })
 
   # Case 1: Assign styles when there are no styles in the destination
+  style <- read_style_from_source(original_gpkg, layer_name = "clc")
   assign_styles_to_layers(
-    from = original_gpkg,
+    style,
     to = temp_gpkg_no_styles,
-    layers_to_copy = c("clc"),
-    layer_name = "clc"
+    layers = "clc"
   )
 
   styles_no_styles <- sf::st_read(temp_gpkg_no_styles, layer = "layer_styles", quiet = TRUE)
@@ -54,11 +54,11 @@ test_that("assign_styles_to_layers works correctly", {
   expect_true("clc" %in% styles_no_styles$f_table_name)
 
   # Case 2: Update styles when they already exist in the destination
+  style <- read_style_from_source(original_gpkg, layer_name = "clc")
   assign_styles_to_layers(
-    from = original_gpkg,
+    style,
     to = temp_gpkg_with_styles,
-    layers_to_copy = c("lanjaron"),
-    layer_name = "clc"
+    layers = c("lanjaron")
   )
 
   # Verify that the styles for the selected layers have been updated
@@ -70,9 +70,10 @@ test_that("assign_styles_to_layers works correctly", {
   unmodified_styles <- styles_with_styles[!(styles_with_styles$f_table_name %in% c("lanjaron")), ]
   expect_equal(nrow(unmodified_styles), 1)
 
-  # Case 3: Assign styles to all layers when layers_to_copy is not specified
+  # Case 3: Assign styles to all layers when layers is not specified
+  style <- read_style_from_source(original_gpkg)
   assign_styles_to_layers(
-    from = original_gpkg,
+    style,
     to = temp_gpkg_no_styles
   )
 

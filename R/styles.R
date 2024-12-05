@@ -200,135 +200,27 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 }
 
 
-#' Assign a Specified or Default Style to Layers Based on Layer Name
+#' Assign a Style to Layers Based on Layer Name
 #'
-#' This function copies the `layer_styles` from a source to a destination.
+#' This function copies a style from a source to a destination.
 #' By default, it assigns the first style from the source to all layers in the destination,
-#' but a specific style can be selected based on the layer name from the source.
-#' If no style is specified, the first style in the `layer_styles` table is applied.
+#' but a specific layers can be selected on the target.
 #'
-#' @param from A data source for the input styles. This can be:
-#'   - A string representing the path to a GeoPackage file.
-#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param style A data frame representing the style structure.
 #' @param to A data destination for the output styles. This can be:
 #'   - A string representing the path to a GeoPackage file.
 #'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
 #' @param database A string, database name, only in case the destination is in PostGIS.
 #' @param schema A string, schema name, only in case the destination is in PostGIS.
-#' @param layers_to_copy An optional character vector specifying the names of layers
+#'   Defaults to `'public'`.
+#' @param layers An optional character vector specifying the names of layers
 #'   in the destination to which the styles should be applied.
 #'   If `NULL` (default), applies the style to all layers.
-#' @param layer_name An optional string representing the name of the layer from the source
-#'   `layer_styles` table whose style should be applied. If `NULL` (default), applies the
-#'   first style.
 #'
 #' @return The updated `layer_styles` table, returned invisibly.
-#'
-#' @examples
-#' # ex1
-#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
-#' dest_gpkg <- tempfile(fileext = ".gpkg")
-#'
-#' layer <- sf::st_read(source_gpkg, layer = "clc")
-#' sf::st_write(layer, dsn = dest_gpkg, layer = "clc2", append = TRUE)
-#'
-#' # Assign styles to all layers using the first style
-#' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg)
-#'
-#' # Assign styles to specific layers using the first style
-#' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-#'                         layers_to_copy = "clc2")
-#'
-#' # Assign a specific style based on layer name to all layers
-#' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-#'                         layer_name = "clc")
-#'
-#' \dontrun{
-#' # ex2
-#' conn <- RPostgres::dbConnect(
-#'   RPostgres::Postgres(),
-#'   dbname = 'exampledb',
-#'   host = 'localhost',
-#'   port = '5432',
-#'   user = 'postgres',
-#'   password = 'postgres'
-#' )
-#' dest_gpkg <- "destination.gpkg"
-#'
-#' # Assign styles to all layers using the first style
-#' assign_styles_to_layers(from = conn, to = dest_gpkg)
-#'
-#' # Assign styles to specific layers using the first style
-#' assign_styles_to_layers(from = conn, to = dest_gpkg,
-#'                         layers_to_copy = c("layer1", "layer2"))
-#'
-#' # Assign a specific style based on layer name to all layers
-#' assign_styles_to_layers(from = conn, to = dest_gpkg,
-#'                         layer_name = "layerX")
-#'
-#' RPostgres::dbDisconnect(conn)
-#'
-#' # ex3
-#' source_gpkg <- "source.gpkg"
-#' conn <- RPostgres::dbConnect(
-#'   RPostgres::Postgres(),
-#'   dbname = 'exampledb',
-#'   host = 'localhost',
-#'   port = '5432',
-#'   user = 'postgres',
-#'   password = 'postgres'
-#' )
-#'
-#' # Assign styles to all layers using the first style
-#' assign_styles_to_layers(from = source_gpkg, to = conn, database = 'exampledb')
-#'
-#' # Assign styles to specific layers using the first style
-#' assign_styles_to_layers(from = source_gpkg, to = conn, database = 'exampledb',
-#'                         layers_to_copy = c("layer1", "layer2"))
-#'
-#' # Assign a specific style based on layer name to all layers
-#' assign_styles_to_layers(from = source_gpkg, to = conn, database = 'exampledb',
-#'                         layer_name = "layerX")
-#'
-#' RPostgres::dbDisconnect(conn)
-#'
-#'
-#' # ex4
-#' source_conn <- RPostgres::dbConnect(
-#'   RPostgres::Postgres(),
-#'   dbname = 'exampledb1',
-#'   host = 'localhost',
-#'   port = '5432',
-#'   user = 'postgres',
-#'   password = 'postgres'
-#' )
-#' conn <- RPostgres::dbConnect(
-#'   RPostgres::Postgres(),
-#'   dbname = 'exampledb2',
-#'   host = 'localhost',
-#'   port = '5432',
-#'   user = 'postgres',
-#'   password = 'postgres'
-#' )
-#'
-#' # Assign styles to all layers using the first style
-#' assign_styles_to_layers(from = source_conn, to = conn, database = 'exampledb2')
-#'
-#' # Assign styles to specific layers using the first style
-#' assign_styles_to_layers(from = source_conn, to = conn, database = 'exampledb2',
-#'                         layers_to_copy = c("layer1", "layer2"))
-#'
-#' # Assign a specific style based on layer name to all layers
-#' assign_styles_to_layers(from = source_conn, to = conn, database = 'exampledb2',
-#'                         layer_name = "layerX")
-#'
-#' RPostgres::dbDisconnect(source_conn)
-#' RPostgres::dbDisconnect(conn)
-#' }
-#'
-#' @export
-assign_styles_to_layers <- function(from, to, database = NULL, schema='public', layers_to_copy = NULL, layer_name = NULL) {
-  style <- read_style_from_source(from, layer_name)
+#' @keywords internal
+#' @noRd
+assign_styles_to_layers <- function(style, to, database = NULL, schema='public', layers = NULL) {
 
   if (is.null(database)) {
     schema <- NULL
@@ -339,13 +231,13 @@ assign_styles_to_layers <- function(from, to, database = NULL, schema='public', 
     layers_in_to <- exist_layer_styles_pg(to, schema)
   }
 
-  layers_to_copy <- get_layers_to_copy(layers_to_copy, all_layers)
+  layers <- get_layers_to_copy(layers, all_layers)
 
   existing_styles <- get_existing_styles(to, layers_in_to, style)
 
-  new_styles <- generate_new_styles(layers_to_copy, style, database, schema)
+  new_styles <- generate_new_styles(layers, style, database, schema)
 
-  combined_styles <- combine_styles(existing_styles, new_styles, layers_to_copy, to)
+  combined_styles <- combine_styles(existing_styles, new_styles, layers, to)
 
   invisible(combined_styles)
 }

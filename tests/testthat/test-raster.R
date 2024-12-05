@@ -1,13 +1,10 @@
-test_that("vector_to_raster works correctly with base raster", {
+test_that("vector_to_raster_layers works correctly with base raster", {
   gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
   raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
-  result <- vector_to_raster(
-    from = gpkg_path,
-    layer_name = "clc",
-    field = "CODE_18",
-    raster_path = raster_path
-  )
+  vector_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  base_raster <- terra::rast(raster_path)
+  result <- vector_to_raster_layers(vector_layer, field = "CODE_18", base_raster)
 
   expect_s4_class(result, "SpatRaster")
 
@@ -19,17 +16,13 @@ test_that("vector_to_raster works correctly with base raster", {
   expect_equal(terra::ext(result) == terra::ext(base_raster), TRUE)
 })
 
-test_that("vector_to_raster works correctly with resolution", {
+test_that("vector_to_raster_layers works correctly with resolution", {
   gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
   resolution <- 50
 
-  result <- vector_to_raster(
-    from = gpkg_path,
-    layer_name = "clc",
-    field = "CODE_18",
-    resolution = resolution
-  )
+  vector_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  result <- vector_to_raster_layers(vector_layer, field = "CODE_18", resolution = resolution)
 
   expect_s4_class(result, "SpatRaster")
 
@@ -37,16 +30,14 @@ test_that("vector_to_raster works correctly with resolution", {
   expect_equal(terra::res(result), c(resolution, resolution))
 })
 
-test_that("vector_to_raster handles missing arguments correctly", {
+test_that("vector_to_raster_layers handles missing arguments correctly", {
   gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  vector_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
 
   # Expect an error when neither raster_path nor resolution is provided
   expect_error(
-    vector_to_raster(
-      from = gpkg_path,
-      layer_name = "clc",
-      field = "CODE_18"
-    ),
+    vector_to_raster_layers(vector_layer, field = "CODE_18"),
     "Either 'base_raster' or 'resolution' must be provided."
   )
 })

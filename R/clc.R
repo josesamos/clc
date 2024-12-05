@@ -179,6 +179,60 @@ save.clc <- function(clo,
                      database = NULL,
                      schema = 'public',
                      layer_name = NULL) {
+  if (is.null(layer_name)) {
+    layer_name <- clo$name
+  }
+
+  suppressMessages(sf::st_write(
+    obj = clo$layer,
+    dsn = to,
+    layer = layer_name,
+    delete_layer = TRUE
+  ))
+
+  assign_styles_to_layers(clo$style, to, database, schema, layers = layer_name)
+  clo
 }
+
+# Plot vectorial
+
+
+# library(sf)
+# library(ggplot2)
+# library(xml2)
+#
+# # Ruta al GeoPackage
+# gpkg_path <- "ruta_a_tu_geopackage.gpkg"
+#
+# # Leer la capa
+# layer <- st_read(gpkg_path, layer = "nombre_de_la_capa")
+#
+# # Leer el estilo desde la tabla 'layer_styles'
+# styles <- st_read(gpkg_path, layer = "layer_styles")
+#
+# # Extraer el XML del estilo
+# style_xml <- read_xml(styles$styleQML[1])
+#
+# # Extraer categorías (asumiendo un campo <category>)
+# categories <- xml_find_all(style_xml, "//category")
+# values <- xml_attr(categories, "value")
+# labels <- xml_attr(categories, "label")
+# colors <- xml_attr(categories, "symbol")
+#
+# # Convertir colores a un formato interpretable
+# rgb2hex <- function(rgb) {
+#   rgb_vals <- as.numeric(unlist(strsplit(rgb, ",")))
+#   rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3], maxColorValue = 255)
+# }
+# colors_hex <- sapply(colors, rgb2hex)
+#
+# # Asociar colores a la capa según un atributo
+# layer$color <- colors_hex[match(layer$tu_campo, values)]
+#
+# # Visualizar con ggplot2
+# ggplot(data = layer) +
+#   geom_sf(aes(fill = color), color = NA) +
+#   scale_fill_identity() +
+#   theme_minimal()
 
 

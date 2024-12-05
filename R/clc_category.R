@@ -14,7 +14,7 @@
 #' obj <- clc(source_gpkg, "clc")
 #'
 #' @export
-clc_category <- function(style, values) {
+clc_category <- function(style, values = NULL) {
 
   cat <- extract_categories_and_colors(style)
 

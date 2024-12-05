@@ -4,50 +4,40 @@
 \alias{clc}
 \title{`clc` S3 class}
 \usage{
-clc(dir, out_dir = NULL, only_spectral_bands = TRUE)
+clc(source, layer_name)
 }
 \arguments{
-\item{dir}{A string or string vector, folder names.}
+\item{source}{The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.}
 
-\item{out_dir}{A string, output folder.}
-
-\item{only_spectral_bands}{A boolean, include only spectral bands.}
+\item{layer_name}{The name of the layer in the source to be used.}
 }
 \value{
-A `clc` object.
+An object of class `clc`.
 }
 \description{
-Creates a `clc` object from a set of raster files.
+Create an object of class `clc`.
 }
 \details{
-Given a folder name or a vector of folder names, containing satellite band
-raster files, creates an object containing all rasters grouped according to
-their spatial resolution.
+This function creates an object of class `clc` from a vector layer in either
+a GeoPackage or a PostGIS database.
 
-If there are several rasters of the same area (tiles), it previously merges
-them to form a single raster of the total area.
-
-A working folder where the virtual rasters are created can be indicated as a
-parameter. Additionally, we indicate whether we wish to process only the
-spectral band files (B1 to B12) or all available files.
+The layer must have a style defined in the source.
 }
 \examples{
+# ex1
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
 
-esa <- system.file("extdata", "esa", package = "clc")
-
-sr <- clc(dir = esa)
-
-sr <- clc(dir = esa,
-             out_dir = tempdir(),
-             only_spectral_bands = FALSE)
-
+\dontrun{
+# ex2
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'postgres',
+  password = 'postgres'
+)
+clo <- clc(source = conn, layer_name = "clc")
 }
-\seealso{
-\code{\link{sat_untarzip}}
-
-Other satellite definition: 
-\code{\link{get_band_names}()},
-\code{\link{get_spatial_resolution}()},
-\code{\link{get_spectral_band_names}()}
 }
-\concept{satellite definition}
