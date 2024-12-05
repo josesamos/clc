@@ -10,7 +10,7 @@
 #' @param field The field in the vector layer used to assign values in the raster.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
 #' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
-#' @return A raster object created from the vector layer.
+#' @return A `terra` raster object representing the converted vector layer into raster format.
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
 #' @examples
@@ -34,6 +34,7 @@
 #'   resolution = 50
 #' )
 #'
+#' @export
 vector_to_raster_layers <- function(vector_layer,
                                     field,
                                     base_raster = NULL,

@@ -21,7 +21,7 @@ vector_to_raster_layers(
 \item{resolution}{(Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.}
 }
 \value{
-A raster object created from the vector layer.
+A `terra` raster object representing the converted vector layer into raster format.
 }
 \description{
 Converts a vector layer (in sf format) into a raster layer using a specified field
