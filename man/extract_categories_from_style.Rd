@@ -2,20 +2,21 @@
 % Please edit documentation in R/categor.R
 \name{extract_categories_from_style}
 \alias{extract_categories_from_style}
-\title{Extract Categories from a Style Layer in a GeoPackage Based on Layer Name}
+\title{Extract Categories from a Style Layer Based on Layer Name}
 \usage{
-extract_categories_from_style(from, r_clc, layer_name = NULL)
+extract_categories_from_style(from, layer_name = NULL, values = NULL)
 }
 \arguments{
 \item{from}{A data source for the input styles. This can be:
 - A string representing the path to a GeoPackage file.
 - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
-\item{r_clc}{A `terra` raster object containing the land cover data.}
-
 \item{layer_name}{An optional string representing the name of the layer from the source
 `layer_styles` whose style should be applied. If `NULL` (default), applies the
 first style.}
+
+\item{values}{The set of values used to filter the results; filtering is applied only if this set
+is not NULL.}
 }
 \value{
 A data frame containing the category IDs, descriptions, and associated
@@ -24,30 +25,31 @@ The data frame has three columns: `id`, `description`, and `color` (HEX color co
 }
 \description{
 This function extracts the categories (labels and associated colors) from the
-`layer_styles` layer of a GeoPackage. The style information is used to create
-a mapping between category IDs, descriptions, and colors for a given raster layer.
+`layer_styles` layer of a GeoPackage or PostGIS database. The style information
+is used to create a mapping between category IDs, descriptions, and colors.
 }
 \details{
 The function will use the style for the specified layer name, or if no name is
 provided, it defaults to using the first style in the `layer_styles` table.
+
+The result can be filtered by considering only the specified values, provided
+a set other than NULL is assigned to the `values` variable.
 }
 \examples{
+
+gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+categories <- extract_categories_from_style(from = gpkg_path)
+
+categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc")
+
+categories <- extract_categories_from_style(from = gpkg_path,
+  values = c(111, 211, 311))
+
+categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc",
+  values = c(111, 211, 311))
+
 \dontrun{
-source_gpkg <- "source.gpkg"
-
-r_clc <- terra::rast("clc_raster.tif")
-
-# Extract categories from the style layer and the raster
-categories <- extract_categories_from_style(from = source_gpkg, r_clc = r_clc)
-
-# Extract categories for a specific layer
-categories_layerX <- extract_categories_from_style(
-  from = source_gpkg,
-  r_clc = r_clc,
-  layer_name = "layerX"
-)
-source_gpkg <- "source.gpkg"
-
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
   dbname = 'exampledb',
@@ -57,20 +59,15 @@ conn <- RPostgres::dbConnect(
   password = 'postgres'
 )
 
-# Extract categories from the style layer and the raster
-categories <- extract_categories_from_style(from = conn, r_clc = r_clc)
+categories <- extract_categories_from_style(from = conn)
 
-# Extract categories for a specific layer
-categories_layerX <- extract_categories_from_style(
-  from = conn,
-  r_clc = r_clc,
-  layer_name = "layerX"
-)
+categories <- extract_categories_from_style(from = conn, layer_name = "clc")
+
+categories <- extract_categories_from_style(from = conn,
+  values = c(111, 211, 311))
+
+categories <- extract_categories_from_style(from = conn, layer_name = "clc",
+  values = c(111, 211, 311))
 }
 
 }
-\seealso{
-Other transformation functions: 
-\code{\link{safe_clip_multipolygon}()}
-}
-\concept{transformation functions}

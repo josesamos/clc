@@ -22,22 +22,12 @@ ensuring the output is in the same CRS as the input polygon.
 }
 \examples{
 
-vector <- sf::st_as_sf(data.frame(
-  id = 1:3,
-  geometry = sf::st_sfc(
-    sf::st_point(c(0.5, 0.5)),
-    sf::st_point(c(1.5, 1.5)),
-    sf::st_point(c(2.5, 2.5))
-  )
-), crs = 4326)
 
-polygon <- sf::st_as_sf(data.frame(
-  id = 1,
-  geometry = sf::st_sfc(sf::st_polygon(list(rbind(
-    c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)
-  ))))
-), crs = 4326)
+gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
-cv <- clip_vector(vector, polygon)
+clc <- sf::st_read(gpkg_path, layer = "clc")
+lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron")
+
+clc_clipped <- clip_vector(clc, lanjaron)
 
 }

@@ -1,20 +1,14 @@
 test_that("extract_categories_and_colors works correctly", {
-  # Path to the GeoPackage included in the package
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "nombre_del_paquete")
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
-  # Read the styles layer
   styles <- sf::st_read(gpkg_path, layer = "layer_styles", quiet = TRUE)
 
-  # Ensure the styles layer contains data
   expect_gt(nrow(styles), 0)
 
-  # Extract categories and colors
   categories <- extract_categories_and_colors(styles[1, ])
 
-  # Verify the result is a data.frame
   expect_s3_class(categories, "data.frame")
 
-  # Verify the columns are present
   expect_true(all(c("id", "description", "color") %in% colnames(categories)))
 
   # Verify colors are in hexadecimal format
@@ -22,16 +16,12 @@ test_that("extract_categories_and_colors works correctly", {
 })
 
 test_that("extract_categories_from_style works correctly with specific values", {
-  # Path to the GeoPackage included in the package
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "nombre_del_paquete")
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
-  # Extract categories from the GeoPackage
   categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc")
 
-  # Verify the result is a data.frame
   expect_s3_class(categories, "data.frame")
 
-  # Verify the columns are present
   expect_true(all(c("id", "description", "color") %in% colnames(categories)))
 
   # Filter by specific values
@@ -48,8 +38,7 @@ test_that("extract_categories_from_style works correctly with specific values", 
 })
 
 test_that("extract_categories_from_style handles non-existent layers correctly", {
-  # Path to the GeoPackage included in the package
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "nombre_del_paquete")
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
   # Attempt to extract categories from a non-existent layer
   expect_error(
@@ -59,10 +48,8 @@ test_that("extract_categories_from_style handles non-existent layers correctly",
 })
 
 test_that("extract_categories_from_style works without specific values", {
-  # Path to the GeoPackage included in the package
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "nombre_del_paquete")
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
-  # Extract categories without specifying values
   categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc")
 
   # Verify the result is a complete data.frame

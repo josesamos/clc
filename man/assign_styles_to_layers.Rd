@@ -2,7 +2,7 @@
 % Please edit documentation in R/styles.R
 \name{assign_styles_to_layers}
 \alias{assign_styles_to_layers}
-\title{Assign a Specified or Default Style to Layers in a GeoPackage Based on Layer Name}
+\title{Assign a Specified or Default Style to Layers Based on Layer Name}
 \usage{
 assign_styles_to_layers(
   from,
@@ -27,7 +27,7 @@ assign_styles_to_layers(
 \item{schema}{A string, schema name, only in case the destination is in PostGIS.}
 
 \item{layers_to_copy}{An optional character vector specifying the names of layers
-in the destination GeoPackage to which the styles should be applied.
+in the destination to which the styles should be applied.
 If `NULL` (default), applies the style to all layers.}
 
 \item{layer_name}{An optional string representing the name of the layer from the source
@@ -38,27 +38,32 @@ first style.}
 The updated `layer_styles` table, returned invisibly.
 }
 \description{
-This function copies the `layer_styles` from a source GeoPackage to a destination GeoPackage.
+This function copies the `layer_styles` from a source to a destination.
 By default, it assigns the first style from the source to all layers in the destination,
-but a specific style can be selected based on the layer name from the source GeoPackage.
+but a specific style can be selected based on the layer name from the source.
 If no style is specified, the first style in the `layer_styles` table is applied.
 }
 \examples{
-\dontrun{
-source_gpkg <- "source.gpkg"
-dest_gpkg <- "destination.gpkg"
+# ex1
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+dest_gpkg <- tempfile(fileext = ".gpkg")
+
+layer <- sf::st_read(source_gpkg, layer = "clc")
+sf::st_write(layer, dsn = dest_gpkg, layer = "clc2", append = TRUE)
 
 # Assign styles to all layers using the first style
 assign_styles_to_layers(from = source_gpkg, to = dest_gpkg)
 
 # Assign styles to specific layers using the first style
 assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-                        layers_to_copy = c("layer1", "layer2"))
+                        layers_to_copy = "clc2")
 
 # Assign a specific style based on layer name to all layers
 assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-                        layer_name = "layerX")
+                        layer_name = "clc")
 
+\dontrun{
+# ex2
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
   dbname = 'exampledb',
@@ -82,6 +87,7 @@ assign_styles_to_layers(from = conn, to = dest_gpkg,
 
 RPostgres::dbDisconnect(conn)
 
+# ex3
 source_gpkg <- "source.gpkg"
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
@@ -106,6 +112,7 @@ assign_styles_to_layers(from = source_gpkg, to = conn, database = 'exampledb',
 RPostgres::dbDisconnect(conn)
 
 
+# ex4
 source_conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
   dbname = 'exampledb1',

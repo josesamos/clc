@@ -225,22 +225,25 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' @return The updated `layer_styles` table, returned invisibly.
 #'
 #' @examples
-#' \dontrun{
 #' # ex1
-#' source_gpkg <- "source.gpkg"
-#' dest_gpkg <- "destination.gpkg"
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' dest_gpkg <- tempfile(fileext = ".gpkg")
+#'
+#' layer <- sf::st_read(source_gpkg, layer = "clc")
+#' sf::st_write(layer, dsn = dest_gpkg, layer = "clc2", append = TRUE)
 #'
 #' # Assign styles to all layers using the first style
 #' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg)
 #'
 #' # Assign styles to specific layers using the first style
 #' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-#'                         layers_to_copy = c("layer1", "layer2"))
+#'                         layers_to_copy = "clc2")
 #'
 #' # Assign a specific style based on layer name to all layers
 #' assign_styles_to_layers(from = source_gpkg, to = dest_gpkg,
-#'                         layer_name = "layerX")
+#'                         layer_name = "clc")
 #'
+#' \dontrun{
 #' # ex2
 #' conn <- RPostgres::dbConnect(
 #'   RPostgres::Postgres(),

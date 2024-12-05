@@ -30,26 +30,12 @@ This solution is inspired by a discussion on handling WKB type errors in R:
 }
 \examples{
 
-vector <- sf::st_as_sf(data.frame(
-  id = 1:2,
-  geometry = sf::st_sfc(
-    sf::st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))),
-    sf::st_polygon(list(rbind(c(1, 1), c(3, 1), c(3, 3), c(1, 3), c(1, 1))))
-  )
-), crs = 4326)
+gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
-polygon <- sf::st_as_sf(data.frame(
-  id = 1,
-  geometry = sf::st_sfc(sf::st_polygon(list(rbind(
-    c(1, 1), c(2, 1), c(2, 2), c(1, 2), c(1, 1)
-  ))))
-), crs = 4326)
+clc <- sf::st_read(gpkg_path, layer = "clc")
+lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron")
 
-sc <- safe_clip_multipolygon(vector, polygon)
+clc_clipped <- safe_clip_multipolygon(clc, lanjaron)
 
-}
-\seealso{
-Other transformation functions: 
-\code{\link{extract_categories_from_style}()}
 }
 \concept{transformation functions}

@@ -65,9 +65,20 @@ extract_categories_and_colors <- function(style) {
 #' The data frame has three columns: `id`, `description`, and `color` (HEX color codes).
 #'
 #' @examples
-#' \dontrun{
-#' source_gpkg <- "source.gpkg"
 #'
+#' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+#'
+#' categories <- extract_categories_from_style(from = gpkg_path)
+#'
+#' categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc")
+#'
+#' categories <- extract_categories_from_style(from = gpkg_path,
+#'   values = c(111, 211, 311))
+#'
+#' categories <- extract_categories_from_style(from = gpkg_path, layer_name = "clc",
+#'   values = c(111, 211, 311))
+#'
+#' \dontrun{
 #' conn <- RPostgres::dbConnect(
 #'   RPostgres::Postgres(),
 #'   dbname = 'exampledb',
@@ -77,27 +88,15 @@ extract_categories_and_colors <- function(style) {
 #'   password = 'postgres'
 #' )
 #'
-#' r_clc <- terra::rast("clc_raster.tif")
-#' values <- sort(terra::unique(r_clc)[, 1])
-#'
-#' # ex1
-#' categories <- extract_categories_from_style(from = source_gpkg, values = values)
-#'
-#' # ex2
-#' categories_layerX <- extract_categories_from_style(
-#'   from = source_gpkg,
-#'   layer_name = "layerX"
-#' )
-#'
-#' # ex3
 #' categories <- extract_categories_from_style(from = conn)
 #'
-#' # ex4
-#' categories_layerX <- extract_categories_from_style(
-#'   from = conn,
-#'   layer_name = "layerX",
-#'   values = values
-#' )
+#' categories <- extract_categories_from_style(from = conn, layer_name = "clc")
+#'
+#' categories <- extract_categories_from_style(from = conn,
+#'   values = c(111, 211, 311))
+#'
+#' categories <- extract_categories_from_style(from = conn, layer_name = "clc",
+#'   values = c(111, 211, 311))
 #' }
 #'
 #' @export

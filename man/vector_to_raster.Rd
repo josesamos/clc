@@ -8,7 +8,7 @@ vector_to_raster(
   from,
   layer_name,
   field,
-  base_raster = NULL,
+  raster_path = NULL,
   resolution = NULL
 )
 }
@@ -21,8 +21,8 @@ vector_to_raster(
 
 \item{field}{A string representing the name of the layer field from which the values for the raster layer will be taken.}
 
-\item{base_raster}{A `terra` raster object to use as the base for the output raster. If `NULL`, the function will
-generate a new raster using the dimensions of the vector layer and the provided resolution.}
+\item{raster_path}{A string, the file path of the raster object to use as the base for the output raster. If `NULL`,
+the function will generate a new raster using the dimensions of the vector layer and the provided resolution.}
 
 \item{resolution}{A numeric value specifying the resolution of the raster (in meters). This is used to generate
 a new raster if no `base_raster` is provided. The function will automatically calculate the raster's extent from
@@ -32,12 +32,15 @@ the vector layer.}
 A `terra` raster object representing the converted vector layer into raster format.
 }
 \description{
-This function converts a vector layer representing **CORINE Land Cover (CLC)**
+This function converts a vector layer representing *CORINE Land Cover (CLC)*
 data, stored in a GeoPackage or in PostGIS, into a raster format using either an
 existing raster as a base or, if no base raster is provided, generating a new
 raster based on the extent and resolution of the vector layer.
 }
 \details{
+If a base raster is used, the vector layer is cropped to the bounding box of the
+base raster, and the resulting raster has the same CRS as the base raster.
+
 The function requires either `base_raster` or `resolution` to be provided.
 If both are missing, an error is raised.
 }
