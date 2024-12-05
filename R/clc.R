@@ -21,7 +21,7 @@
 #' @examples
 #' # ex1
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
-#' clo <- clc(source_gpkg, "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
 #' \dontrun{
 #' # ex2
@@ -33,14 +33,15 @@
 #'   user = 'postgres',
 #'   password = 'postgres'
 #' )
-#' clo <- clc(conn, "clc")
+#' clo <- clc(source = conn, layer_name = "clc")
 #' }
 #' @export
 clc <- function(source, layer_name) {
   layer <- suppressWarnings(sf::st_read(source, layer = layer_name, quiet = TRUE))
-  style <- suppressWarnings(sf::st_read(source, layer = "layer_styles", quiet = TRUE))
+  style <- read_style_from_source(source, layer_name)
 
   obj <- list(
+    name = layer_name,
     layer = layer,
     style = style
   )
@@ -63,11 +64,13 @@ clc <- function(source, layer_name) {
 #'
 #' @examples
 #'
-#' esa <- system.file("extdata", "esa", package = "clc")
-#' clo <- clc(dir = esa)
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
-#' r <- clo |>
-#'      cut_to_extent()
+#' polygon <- sf::st_read(source_gpkg, layer = 'lanjaron', quiet = TRUE)
+#'
+#' clo2 <- clo |>
+#'         cut_to_extent(polygon)
 #'
 #' @export
 cut_to_extent <- function(clo, polygon)
@@ -81,6 +84,7 @@ cut_to_extent.clc <- function(clo, polygon) {
   layer <- safe_clip_multipolygon(clo$layer, polygon)
 
   obj <- list(
+    name = clo$name,
     layer = layer,
     style = clo$style
   )
@@ -105,10 +109,18 @@ cut_to_extent.clc <- function(clo, polygon) {
 #' @examples
 #'
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
-#' clo <- clc(source_gpkg, "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
+#' raster_path <- system.file("extdata", "mdt.tif", package = "clc")
+#' base_raster <- terra::rast(raster_path)
+#'
+#' # ex1
 #' r <- clo |>
-#'      as_raster()
+#'      as_raster( field = "CODE_18", base_raster = base_raster)
+#'
+#' # ex2
+#' r <- clo |>
+#'      as_raster( field = "CODE_18", resolution = 50)
 #'
 #' @export
 as_raster <- function(clo, field, base_raster, resolution)
@@ -125,6 +137,48 @@ as_raster.clc <- function(clo,
   category <- clc_category(clo$style, values)
 
   clc_raster(clo$layer, field, category, base_raster, resolution)
+}
+
+
+#' Save a CLC layer and its style to a GeoPackage or PostGIS database
+#'
+#' This function saves a CLC layer and its style to a GeoPackage file or a PostGIS database.
+#' The destination is determined by the `to` argument.
+#'
+#' @param clo A `clc` object.
+#' @param to A data destination for the output. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param database A string, database name, only in case the destination is in PostGIS.
+#' @param schema A string, schema name, only in case the destination is in PostGIS.
+#'   Defaults to `'public'`.
+#' @param layer_name A character string specifying the name of the layer in the output.
+#'   If `NULL`, the name of the input `layer` is used.
+#'
+#' @return clo A `clc` object.
+#'
+#' @details The function overwrites the table if it already exists.
+#'
+#' @examples
+#'
+#' esa <- system.file("extdata", "esa", package = "clc")
+#' clo <- clc(dir = esa)
+#'
+#' r <- clo |>
+#'      save()
+#'
+#' @export
+save <- function(clo, to, database, schema, layer_name)
+  UseMethod("save")
+
+
+#' @rdname save
+#' @export
+save.clc <- function(clo,
+                     to,
+                     database = NULL,
+                     schema = 'public',
+                     layer_name = NULL) {
 }
 
 
