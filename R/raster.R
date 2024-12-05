@@ -1,7 +1,8 @@
-#' Rasterize a vector layer
+#' Convert a Vector Layer to Raster Format
 #'
 #' Converts a vector layer (in sf format) into a raster layer using a specified field
 #' and either a base raster or a resolution.
+#'
 #' If a base raster is used, the vector layer is cropped to the bounding box of the
 #' base raster, and the resulting raster has the same CRS as the base raster.
 #'
@@ -12,12 +13,31 @@
 #' @return A raster object created from the vector layer.
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
-#' @keywords internal
-#' @noRd
+#' @examples
+#' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+#' vector_layer <- sf::st_read(gpkg_path, layer = 'clc', quiet = TRUE)
+#'
+#' raster_path <- system.file("extdata", "mdt.tif", package = "clc")
+#' base_raster <- terra::rast(raster_path)
+#'
+#' # Ex1
+#' raster_result <- vector_to_raster_layers(
+#'   vector_layer = vector_layer,
+#'   field = "CODE_18",
+#'   base_raster = base_raster
+#' )
+#'
+#' # Ex2
+#' raster_result <- vector_to_raster_layers(
+#'   vector_layer = vector_layer,
+#'   field = "CODE_18",
+#'   resolution = 50
+#' )
+#'
 vector_to_raster_layers <- function(vector_layer,
-                                     field,
-                                     base_raster = NULL,
-                                     resolution = NULL) {
+                                    field,
+                                    base_raster = NULL,
+                                    resolution = NULL) {
   if (!is.null(base_raster)) {
     r_base <- base_raster
     bbox_raster <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(r_base)))
@@ -42,12 +62,12 @@ vector_to_raster_layers <- function(vector_layer,
 }
 
 
-#' Convert a CORINE Land Cover Vector Layer to Raster Format
+#' Convert a Stored Vector Layer to Raster Format
 #'
-#' This function converts a vector layer representing *CORINE Land Cover (CLC)*
-#' data, stored in a GeoPackage or in PostGIS, into a raster format using either an
-#' existing raster as a base or, if no base raster is provided, generating a new
-#' raster based on the extent and resolution of the vector layer.
+#' This function converts a vector layer, stored in a GeoPackage or in PostGIS,
+#' into a raster format using either an existing raster as a base or, if no base
+#' raster is provided, generating a new raster based on the extent and resolution
+#' of the vector layer.
 #'
 #' If a base raster is used, the vector layer is cropped to the bounding box of the
 #' base raster, and the resulting raster has the same CRS as the base raster.

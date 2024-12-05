@@ -51,7 +51,7 @@ test_that("vector_to_raster handles missing arguments correctly", {
   )
 })
 
-test_that("process_vector_to_raster stops if the vector does not overlap with the base raster", {
+test_that("vector_to_raster_layers stops if the vector does not overlap with the base raster", {
   gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
   vector_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
 
@@ -64,7 +64,7 @@ test_that("process_vector_to_raster stops if the vector does not overlap with th
 
   # Expect an error due to no overlap
   expect_error(
-    process_vector_to_raster(vector_layer, field = "CODE_18", base_raster = base_raster),
+    vector_to_raster_layers(vector_layer, field = "CODE_18", base_raster = base_raster),
     "The vector layer does not overlap with the base raster."
   )
 })

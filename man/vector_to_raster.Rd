@@ -2,7 +2,7 @@
 % Please edit documentation in R/raster.R
 \name{vector_to_raster}
 \alias{vector_to_raster}
-\title{Convert a CORINE Land Cover Vector Layer to Raster Format}
+\title{Convert a Stored Vector Layer to Raster Format}
 \usage{
 vector_to_raster(
   from,
@@ -32,10 +32,10 @@ the vector layer.}
 A `terra` raster object representing the converted vector layer into raster format.
 }
 \description{
-This function converts a vector layer representing *CORINE Land Cover (CLC)*
-data, stored in a GeoPackage or in PostGIS, into a raster format using either an
-existing raster as a base or, if no base raster is provided, generating a new
-raster based on the extent and resolution of the vector layer.
+This function converts a vector layer, stored in a GeoPackage or in PostGIS,
+into a raster format using either an existing raster as a base or, if no base
+raster is provided, generating a new raster based on the extent and resolution
+of the vector layer.
 }
 \details{
 If a base raster is used, the vector layer is cropped to the bounding box of the
@@ -45,26 +45,26 @@ The function requires either `base_raster` or `resolution` to be provided.
 If both are missing, an error is raised.
 }
 \examples{
-\dontrun{
-source_gpkg <- "source.gpkg"
+gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
-# Convert vector layer to raster using a base raster
-base_raster <- terra::rast("base_raster.tif")
+# Ex1
 raster_result <- vector_to_raster(
-  from = source_gpkg,
-  layer_name = "CLC_layer",
-  field = "CLC",
-  base_raster = base_raster
+  from = gpkg_path,
+  layer_name = "clc",
+  field = "CODE_18",
+  raster_path = raster_path
 )
 
-# Convert vector layer to raster with a specified resolution
+# Ex2
 raster_result_res <- vector_to_raster(
-  from = source_gpkg,
-  layer_name = "CLC_layer",
-  field = "CLC",
-  resolution = 100
+  from = gpkg_path,
+  layer_name = "clc",
+  field = "CODE_18",
+  resolution = 50
 )
 
+\dontrun{
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
   dbname = 'exampledb',
@@ -74,20 +74,19 @@ conn <- RPostgres::dbConnect(
   password = 'postgres'
 )
 
-# Convert vector layer to raster using a base raster
-base_raster <- terra::rast("base_raster.tif")
+# Ex3
 raster_result <- vector_to_raster(
   from = conn,
-  layer_name = "CLC_layer",
-  field = "CLC",
-  base_raster = base_raster
+  layer_name = "clc",
+  field = "CODE_18",
+  raster_path = raster_path
 )
 
-# Convert vector layer to raster with a specified resolution
+# Ex4
 raster_result_res <- vector_to_raster(
   from = conn,
-  layer_name = "CLC_layer",
-  field = "CLC",
+  layer_name = "clc",
+  field = "CODE_18",
   resolution = 100
 )
 }
