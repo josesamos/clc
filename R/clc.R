@@ -1,8 +1,6 @@
 .onLoad <- function(libname, pkgname) {
   utils::data(
-    "sat_rest",
-    "sat_band",
-    "sat_rest_msk",
+    "clc_code",
     package = pkgname,
     envir = parent.env(environment())
   )
