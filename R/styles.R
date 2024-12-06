@@ -203,8 +203,9 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' Assign a Style to Layers Based on Layer Name
 #'
 #' This function copies a style from a source to a destination.
-#' By default, it assigns the first style from the source to all layers in the destination,
-#' but a specific layers can be selected on the target.
+#'
+#' By default, it assigns the style to all layers in the destination, but a specific
+#' layers can be selected on the target.
 #'
 #' @param style A data frame representing the style structure.
 #' @param to A data destination for the output styles. This can be:

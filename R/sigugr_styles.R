@@ -1,147 +1,126 @@
-#' Copy styles layer from one source `GeoPackage` to another
+#' Copy Layer Styles from Source to Destination
 #'
-#' Assigns the first style from the source to all layers in the destination.
+#' Copies the first style definition from a source (either a GeoPackage file or a
+#' PostGIS connection) and assigns it to all layers in the destination GeoPackage.
 #'
-#' @param from A GeoPackage file name.
-#' @param to A GeoPackage file name.
+#' @param from A data origin. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param to A string representing the path to the destination GeoPackage file.
 #'
-#' @return `obj`, invisibly.
+#' @return The updated `layer_styles` table, returned invisibly.
+#'
+#' @details
+#' The function reads the first style from the `layer_styles` table in the source
+#' GeoPackage or PostGIS database. This style is then applied to all layers in the
+#' destination GeoPackage.
 #'
 #' @examples
-#' #
+#' \dontrun{
+#' source_gpkg <- "source.gpkg"
+#' dest_gpkg <- "destination.gpkg"
+#'
+#' copy_styles_layer(from = source_gpkg, to = dest_gpkg)
+#' }
 #'
 #' @export
 copy_styles_layer <- function(from, to) {
-  layer <- "layer_styles"
-  style <- sf::st_read(from, layer = layer, quiet = TRUE)
-  style <- style[1, ]
-
-  layers <- sf::st_layers(to)
-  my_style <- style
-  n <- length(layers$name)
-  if (n > 1) {
-    for (i in 2:n) {
-      my_style <- rbind(my_style, style)
-    }
-  }
-  for (i in 1:n) {
-    my_style$f_table_name[i] <- layers$name[i]
-    gsub(style$f_table_name, layers$name[i], my_style$styleSLD[i], fixed = TRUE)
-  }
-  sf::st_write(
-    obj = my_style,
-    dsn = to,
-    layer = layer,
-    append = FALSE,
-    quiet = TRUE
-  )
+  style <- read_style_from_source(from)
+  assign_styles_to_layers(style, to)
 }
 
 
-#' Copy styles layer from one source `GeoPackage` to a PostGIS database.
+#' Copy Styles to Specific Layers in a PostGIS Database
 #'
-#' Assigns the first style from the source the given layers in the destination.
+#' Copies the first style definition from a source (either a GeoPackage file or
+#' a PostGIS connection) to the specified layers in a PostGIS database.
 #'
-#' @param from A GeoPackage file name.
-#' @param to A database connection.
-#' @param layers A vector of layer names.
-#' @param database A string, database name.
-#' @param schema A string, schema name.
+#' @param from A data origin. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param to A database connection object to the destination PostGIS database
+#'   (e.g., from `RPostgres::dbConnect`).
+#' @param layers A character vector of layer names in the destination database
+#'   to which the style should be applied.
+#' @param database A string specifying the name of the PostGIS database.
+#' @param schema A string specifying the schema in the PostGIS database where
+#'   the layers reside. Default is `"public"`.
 #'
-#' @return `obj`, invisibly.
+#' @return The updated style object (`obj`), returned invisibly.
 #'
-#' @family transformation functions
+#' @details
+#' The function reads the first style from the `layer_styles` table in the source
+#' and applies it to the specified layers in the destination PostGIS database.
 #'
 #' @examples
-#' #
+#' \dontrun{
+#' source_gpkg <- "source.gpkg"
+#' conn <- DBI::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = "mydb",
+#'   host = "localhost",
+#'   user = "user",
+#'   password = "password"
+#' )
+#'
+#' layers_to_style <- c("layer1", "layer2")
+#'
+#' copy_styles_layer_names(
+#'   from = source_gpkg,
+#'   to = conn,
+#'   layers = layers_to_style,
+#'   database = "mydb",
+#'   schema = "public"
+#' )
+#'
+#' DBI::dbDisconnect(conn)
+#' }
 #'
 #' @export
-copy_styles_layer_names <- function(from, to, layers, database, schema='public') {
-  layer <- "layer_styles"
-  style <- sf::st_read(from, layer = layer, quiet = TRUE)
-  style <- style[1, ]
-
-  my_style <- style
-  n <- length(layers)
-  if (n > 1) {
-    for (i in 2:n) {
-      my_style <- rbind(my_style, style)
-    }
-  }
-
-  my_style$id <- 1:nrow(my_style)
-  my_style <- my_style[, c("id", names(my_style)[-length(names(my_style))])]
-  names(my_style) <- tolower(names(my_style))
-
-  for (i in 1:n) {
-    my_style$f_table_name[i] <- layers[i]
-    my_style$f_table_schema[i] <- schema
-    my_style$f_table_catalog[i] <- database
-    gsub(style$f_table_name, layers[i], my_style$stylesld[i], fixed = TRUE)
-  }
-  my_style$useasdefault <- TRUE
-
-  sf::st_write(
-    obj = my_style,
-    dsn = to,
-    layer = layer,
-    append = FALSE,
-    quiet = TRUE
-  )
+copy_styles_layer_names <- function(from, to, layers, database, schema = 'public') {
+  style <- read_style_from_source(from)
+  assign_styles_to_layers(style, to, database, schema, layers)
 }
 
 
-#' Get layer categories from a styles layer from one source `GeoPackage`
+#' Get Layer Categories Based on Raster Values
 #'
-#' It obtains them from the first defined style.
+#' Extracts the categories (IDs, descriptions, and colors) from the first style
+#' definition stored in a GeoPackage or PostGIS database. The extracted categories
+#' are filtered to include only those present in the raster values.
 #'
-#' @param from A GeoPackage file name.
-#' @param r_clc A `terra` raster.
+#' @param from A data origin. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param r_clc A `terra` raster object containing the raster values to filter the categories.
 #'
-#' @return `categories` A data frame of categories.
+#' @return A data frame containing the filtered categories with the following columns:
+#'   - `id`: The category ID (integer).
+#'   - `description`: The description of the category (character).
+#'   - `color`: The color associated with the category in hexadecimal format (character).
 #'
-#' @family transformation functions
+#' @details
+#' The function retrieves the style definitions from the `layer_styles` table in
+#' the provided GeoPackage or PostGIS database. It filters the categories to include
+#' only those whose IDs match the unique values present in the raster.
+#'
+#' This function is useful for associating raster values with their corresponding
+#' descriptions and colors, typically for visualization or analysis tasks.
 #'
 #' @examples
-#' #
+#' \dontrun{
+#' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+#' r_clc <- terra::rast("clc_raster.tif")
+#'
+#' categories <- get_layer_categories(from = gpkg_path, r_clc = r_clc)
+#' }
 #'
 #' @export
 get_layer_categories <- function(from, r_clc) {
-  layer <- "layer_styles"
-  style <- sf::st_read(from, layer = layer, quiet = TRUE)
-  style <- style[1, ]
-  st_xml <- xml2::read_xml(style$styleQML[1])
-
-  categories <- xml2::xml_find_all(st_xml, "//category")
-  id <- as.integer(xml2::xml_attr(categories, "value"))
-  des <- xml2::xml_attr(categories, "label")
-  symbol <- xml2::xml_attr(categories, "symbol")
-
-  s <- xml2::xml_find_all(st_xml, ".//symbols/symbol")
-  name <- xml2::xml_attr(s, "name")
-  color <- xml2::xml_find_first(s, ".//prop[@k='color']") |> xml2::xml_attr("v")
-
-  rgb2hex <- function(color) {
-    rgb <- strsplit(color, ",")
-    rgb <- rgb[[1]]
-    rgb <- as.numeric(rgb)
-    rgb(rgb[1], rgb[2], rgb[3], maxColorValue = 255)
-  }
-  color2 <- sapply(color, rgb2hex)
-
-  names(color2) <- name
-  color2 <- color2[order(as.numeric(names(color2)))]
-
+  style <- read_style_from_source(from)
   values <- sort(terra::unique(r_clc)[, 1])
 
-  if (!is.null(values)) {
-    des <- des[id %in% values]
-    color2 <- color2[id %in% values]
-    id <- id[id %in% values]
-  }
-  categories <- data.frame(
-    ID = id,
-    Descripcion = des,
-    Color = color2
-  )
+  cat <- extract_categories_and_colors(style)
+  cat <- cat[cat$id %in% values, ]
+  cat
 }
