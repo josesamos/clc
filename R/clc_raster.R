@@ -47,7 +47,7 @@ clc_raster <- function(vector_layer,
 #' @export
 plot_clc.clc_raster <- function(clo, ...) {
   r_clc <- clo$raster
-  levels(r_clc) <- clo$category |> get_data_frame()
+  levels(r_clc) <- clo$category |> get_levels()
   terra::plot(r_clc, col = clo$category |> get_colors(), ...)
   clo
 }

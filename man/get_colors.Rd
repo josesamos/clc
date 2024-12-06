@@ -21,12 +21,6 @@ This generic function extracts the color values associated with a
 `color` field from the object.
 }
 \examples{
-# Create an example `clc_category` object
-cloc <- list(id = "001", description = "Example Category", color = "Red")
-class(cloc) <- "clc_category"
-
-# Get the color from the object
-color <- get_colors(cloc)
-print(color)
+#
 
 }
