@@ -36,9 +36,6 @@ a PostGIS database. The destination is determined by the `to` argument.
 The function overwrites the table if it already exists.
 }
 \examples{
-
-
-r <- clo |>
-     copy_to()
+#
 
 }

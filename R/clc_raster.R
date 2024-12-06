@@ -37,6 +37,22 @@ clc_raster <- function(vector_layer,
 
 
 
+#' @rdname get_levels
+#' @export
+get_levels.clc_raster <- function(clo) {
+  clo$category |>
+    get_levels()
+}
+
+
+#' @rdname get_colors
+#' @export
+get_colors.clc_raster <- function(clo) {
+  clo$category |>
+    get_colors()
+}
+
+
 #' @rdname plot_clc
 #' @export
 plot_clc.clc_raster <- function(clo, ...) {
@@ -44,6 +60,29 @@ plot_clc.clc_raster <- function(clo, ...) {
   levels(r_clc) <- clo$category |> get_levels()
   terra::plot(r_clc, col = clo$category |> get_colors(), ...)
   clo
+}
+
+
+#' Retrieve a Raster Representation of CLC
+#'
+#' Retrieve a raster representation (`terra::SpatRaster`) from a CLC object.
+#'
+#' @param clo A `clc_raster` object.
+#'
+#' @return A `terra::SpatRaster` object.
+#'
+#' @examples
+#' #
+#'
+#' @export
+get_raster <- function(clo)
+  UseMethod("get_raster")
+
+
+#' @rdname get_raster
+#' @export
+get_raster.clc_raster <- function(clo) {
+  clo$raster
 }
 
 

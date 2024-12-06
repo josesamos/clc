@@ -38,7 +38,7 @@
 #' clo <- clc(source = conn, layer_name = "clc")
 #' }
 #' @export
-clc <- function(source, layer_name, field) {
+clc <- function(source, layer_name, field = NULL) {
   layer <- suppressWarnings(sf::st_read(source, layer = layer_name, quiet = TRUE))
   style <- read_style_from_source(source, layer_name)
 
@@ -175,10 +175,7 @@ as_raster.clc <- function(clo,
 #' @details The function overwrites the table if it already exists.
 #'
 #' @examples
-#'
-#'
-#' r <- clo |>
-#'      save_to()
+#' #
 #'
 #' @export
 save_to <- function(clo, to, database, schema, layer_name)
@@ -229,10 +226,7 @@ save_to.clc <- function(clo,
 #' @details The function overwrites the table if it already exists.
 #'
 #' @examples
-#'
-#'
-#' r <- clo |>
-#'      copy_to()
+#' #
 #'
 #' @export
 copy_to <- function(clo, to, database, schema, layers)
@@ -251,24 +245,20 @@ copy_to.clc <- function(clo,
 }
 
 
-#' Plot CORINE Land Cover Data
+#' Plot CLC Data
 #'
-#' A generic function to plot CORINE Land Cover (CLC) data stored in objects of supported classes.
-#' The function adapts the plot based on the class of the input data (vectorial or raster format).
+#' Plot CLC data stored in objects of supported classes. The function
+#' adapts the plot based on the class of the input data (vectorial or raster format).
 #'
 #' It allows users to plot objects with a simplified interface, while allowing additional arguments
 #' to be passed to `plot` using `...`.
 #'
 #' @param clo An object containing CLC data. This must be an instance of a supported class, such as:
-#'   - A vectorial data object (e.g., `sf` object with polygons).
-#'   - A raster data object (e.g., `terra::SpatRaster`).
+#'   - A vectorial data object (e.g., `clc` object).
+#'   - A raster data object (e.g., `clc_raster`).
 #' @param ... Additional arguments passed to the specific method for the object's class.
 #'
 #' @return A plot displaying the CLC data.
-#' @details
-#' The function dispatches to specific methods depending on the class of `clo`. It supports:
-#' - Vectorial CLC data, where it plots polygons with their associated styles or categories.
-#' - Raster CLC data, where it visualizes the raster values with a legend based on categories.
 #'
 #' @examples
 #' #
@@ -282,22 +272,68 @@ plot_clc <- function(clo, ...)
 #' @export
 plot_clc.clc <- function(clo, ...) {
 
-  field <- clo$field
-  layer <- clo$layer
-  levels <- clo$category |> get_levels()
+  levels <- clo |> get_levels()
 
-  layer[[field]] <- factor(layer[[field]], levels = levels$id)
-
-  p <- ggplot2::ggplot(data = layer) +
-    ggplot2::geom_sf(ggplot2::aes(fill = !!rlang::sym(field))) +
+  p <- clo |> prepare_plot() +
     ggplot2::scale_fill_manual(
-      values = setNames(levels$color, levels$id),
-      labels = setNames(levels$description, levels$id),
+      values = stats::setNames(levels$color, levels$id),
+      labels = stats::setNames(levels$description, levels$id),
       name = ""
     ) +
     ggplot2::theme_minimal()
   p
 }
+
+
+#' Prepare a Plot for CLC Data
+#'
+#' Generates a `ggplot2` object to visualize CLC data. The function
+#' processes the data stored in a `clc` object, ensuring that the specified field is
+#' mapped correctly to the categories and their associated styles.
+#'
+#' @param clo A `clc` object.
+#'
+#' @return A `ggplot2` object ready for rendering.
+#'
+#' @examples
+#' #
+#'
+#' @export
+prepare_plot <- function(clo)
+  UseMethod("prepare_plot")
+
+
+#' @rdname prepare_plot
+#' @export
+prepare_plot.clc <- function(clo) {
+
+  field <- clo$field
+  layer <- clo$layer
+  levels <- clo |> get_levels()
+
+  layer[[field]] <- factor(layer[[field]], levels = levels$id)
+
+  p <- ggplot2::ggplot(data = layer) +
+    ggplot2::geom_sf(ggplot2::aes(fill = !!rlang::sym(field)))
+  p
+}
+
+
+#' @rdname get_levels
+#' @export
+get_levels.clc <- function(clo) {
+  clo$category |>
+    get_levels()
+}
+
+
+#' @rdname get_colors
+#' @export
+get_colors.clc <- function(clo) {
+  clo$category |>
+    get_colors()
+}
+
 
 
 #' Find Column Matching CLC Codes

@@ -8,8 +8,11 @@
 #' @param style A data frame containing a QGIS QML style in the column `styleQML`.
 #' @param values The set of values used to filter the results; filtering is applied only if this set
 #'   is not NULL.
+#'
 #' @return An object of class `clc_category`.
+#'
 #' @examples
+#'
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 #' obj <- clc(source_gpkg, "clc")
 #'
@@ -33,13 +36,13 @@ clc_category <- function(style, values = NULL) {
 }
 
 
-#' Retrieve levels from a `clc_category` object
+#' Retrieve Levels from a CLC Style Definition
 #'
-#' This generic function extracts the levels values associated with a
-#' `clc_category` object. It returns a data frame contains the fields `id`,
-#' `description`, and `color` from the `clc_category` object.
+#' This function extracts the levels values associated with a CLC style definition.
+#' It returns a data frame that contains the fields `id`, `description`, and `color`
+#' from the CLC style definition.
 #'
-#' @param cloc A `clc_category` object.
+#' @param clo A CLC object.
 #'
 #' @return A data frame with columns:
 #'   - `id`: The identifier of the category.
@@ -50,29 +53,28 @@ clc_category <- function(style, values = NULL) {
 #' #
 #'
 #' @export
-get_levels <- function(cloc)
+get_levels <- function(clo)
   UseMethod("get_levels")
 
 
 #' @rdname get_levels
 #' @export
-get_levels.clc_category <- function(cloc) {
+get_levels.clc_category <- function(clo) {
   data.frame(
-    id = cloc$id,
-    description = cloc$description,
-    color = cloc$color,
+    id = clo$id,
+    description = clo$description,
+    color = clo$color,
     stringsAsFactors = FALSE
   )
 }
 
 
-#' Retrieve colors from a `clc_category` object
+#' Retrieve Colors from a CLC Style Definition
 #'
-#' This generic function extracts the color values associated with a
-#' `clc_category` object. It returns a character vector containing the
-#' `color` field from the object.
+#' This function extracts the color values associated with a CLC style definition.
+#' It returns a character vector containing the `color` field from the CLC style definition.
 #'
-#' @param cloc A `clc_category` object.
+#' @param clo A `clc_category` object.
 #'
 #' @return A character vector of colors.
 #'
@@ -80,14 +82,14 @@ get_levels.clc_category <- function(cloc) {
 #' #
 #'
 #' @export
-get_colors <- function(cloc)
+get_colors <- function(clo)
   UseMethod("get_colors")
 
 
 #' @rdname get_colors
 #' @export
-get_colors.clc_category <- function(cloc) {
-  cloc$color
+get_colors.clc_category <- function(clo) {
+  clo$color
 }
 
 

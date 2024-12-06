@@ -23,6 +23,7 @@ This function creates an object of class `clc_category` from a CLC style definit
 and a set of values to filter the original style.
 }
 \examples{
+
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 obj <- clc(source_gpkg, "clc")
 

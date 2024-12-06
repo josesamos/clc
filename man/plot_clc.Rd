@@ -4,7 +4,7 @@
 \alias{plot_clc}
 \alias{plot_clc.clc}
 \alias{plot_clc.clc_raster}
-\title{Plot CORINE Land Cover Data}
+\title{Plot CLC Data}
 \usage{
 plot_clc(clo, ...)
 
@@ -14,8 +14,8 @@ plot_clc(clo, ...)
 }
 \arguments{
 \item{clo}{An object containing CLC data. This must be an instance of a supported class, such as:
-- A vectorial data object (e.g., `sf` object with polygons).
-- A raster data object (e.g., `terra::SpatRaster`).}
+- A vectorial data object (e.g., `clc` object).
+- A raster data object (e.g., `clc_raster`).}
 
 \item{...}{Additional arguments passed to the specific method for the object's class.}
 }
@@ -23,17 +23,12 @@ plot_clc(clo, ...)
 A plot displaying the CLC data.
 }
 \description{
-A generic function to plot CORINE Land Cover (CLC) data stored in objects of supported classes.
-The function adapts the plot based on the class of the input data (vectorial or raster format).
+Plot CLC data stored in objects of supported classes. The function
+adapts the plot based on the class of the input data (vectorial or raster format).
 }
 \details{
 It allows users to plot objects with a simplified interface, while allowing additional arguments
 to be passed to `plot` using `...`.
-
-
-The function dispatches to specific methods depending on the class of `clo`. It supports:
-- Vectorial CLC data, where it plots polygons with their associated styles or categories.
-- Raster CLC data, where it visualizes the raster values with a legend based on categories.
 }
 \examples{
 #

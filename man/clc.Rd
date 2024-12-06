@@ -4,7 +4,7 @@
 \alias{clc}
 \title{`clc` S3 Class}
 \usage{
-clc(source, layer_name, field)
+clc(source, layer_name, field = NULL)
 }
 \arguments{
 \item{source}{The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.}

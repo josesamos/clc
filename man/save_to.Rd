@@ -35,9 +35,6 @@ The destination is determined by the `to` argument.
 The function overwrites the table if it already exists.
 }
 \examples{
-
-
-r <- clo |>
-     save_to()
+#
 
 }

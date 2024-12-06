@@ -3,7 +3,7 @@
 \docType{data}
 \name{clc_code}
 \alias{clc_code}
-\title{CORINE Land Cover (CLC) Codes}
+\title{CLC Codes}
 \format{
 A vector.
 }
