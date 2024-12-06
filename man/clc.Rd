@@ -7,7 +7,8 @@
 clc(source, layer_name, field = NULL)
 }
 \arguments{
-\item{source}{The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.}
+\item{source}{The source of the vector layer. Can be a file path to a GeoPackage or
+a PostGIS connection.}
 
 \item{layer_name}{The name of the layer in the source to be used.}
 
@@ -38,8 +39,8 @@ conn <- RPostgres::dbConnect(
   dbname = 'exampledb',
   host = 'localhost',
   port = '5432',
-  user = 'postgres',
-  password = 'postgres'
+  user = 'user',
+  password = 'password'
 )
 clo <- clc(source = conn, layer_name = "clc")
 }

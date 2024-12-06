@@ -36,6 +36,31 @@ a PostGIS database. The destination is determined by the `to` argument.
 The function overwrites the table if it already exists.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
 
+out_gpkg <- tempfile(fileext = ".gpkg")
+clo <- clo |>
+  save_to(out_gpkg)
+
+# ex1
+clo <- clo |>
+  copy_to(out_gpkg, layers = 'clc')
+
+\dontrun{
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'user',
+  password = 'password'
+)
+clo <- clo |>
+  save_to(conn, 'exampledb')
+
+# ex2
+clo <- clo |>
+  copy_to(conn, 'exampledb', layers = 'clc')
+}
 }

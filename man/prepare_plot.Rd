@@ -21,6 +21,28 @@ processes the data stored in a `clc` object, ensuring that the specified field i
 mapped correctly to the categories and their associated styles.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
+
+p <- clo |>
+  prepare_plot()
+
+levels <- clo |>
+  get_levels()
+
+p <- p +
+  ggplot2::scale_fill_manual(
+    values = stats::setNames(levels$color, levels$id),
+    labels = stats::setNames(levels$description, levels$id),
+    name = ""
+  ) +
+  ggplot2::theme_minimal()
+
+temp_file <- tempfile(fileext = ".png")
+png(filename = temp_file, width = 800, height = 600)
+
+p
+
+dev.off()
 
 }

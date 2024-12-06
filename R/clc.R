@@ -15,11 +15,14 @@
 #'
 #' The layer must have a style defined in the source.
 #'
-#' @param source The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.
+#' @param source The source of the vector layer. Can be a file path to a GeoPackage or
+#'   a PostGIS connection.
 #' @param layer_name The name of the layer in the source to be used.
 #' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
 #'   the function will attempt to locate the column containing the CLC codes.
+#'
 #' @return An object of class `clc`.
+#'
 #' @examples
 #' # ex1
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -32,8 +35,8 @@
 #'   dbname = 'exampledb',
 #'   host = 'localhost',
 #'   port = '5432',
-#'   user = 'postgres',
-#'   password = 'postgres'
+#'   user = 'user',
+#'   password = 'password'
 #' )
 #' clo <- clc(source = conn, layer_name = "clc")
 #' }
@@ -58,7 +61,9 @@ clc <- function(source, layer_name, field = NULL) {
 #' @param layer_name The name of the layer in the source to be used.
 #' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
 #'   the function will attempt to locate the column containing the CLC codes.
+#'
 #' @return An object of class `clc`.
+#'
 #' @keywords internal
 #' @noRd
 clc_new <- function(layer, style, layer_name, field) {
@@ -90,7 +95,6 @@ clc_new <- function(layer, style, layer_name, field) {
 #' @return A `clc` object.
 #'
 #' @examples
-#'
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 #' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
@@ -116,17 +120,20 @@ cut_to_extent.clc <- function(clo, polygon) {
 
 #' Convert a `clc` Object to Raster Format
 #'
-#' Returns an object of class `clc_raster` that contains a `terra` raster object
+#' Returns an object of class `clc_raster` that contains a `terra::SpatRaster` raster object
 #' representing the converted vector layer into raster format.
 #'
 #' @param clo A `clc` object.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
-#' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
+#' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster`
+#'   is not provided.
+#'
 #' @return An object of class `clc_raster`.
+#'
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
-#' @examples
 #'
+#' @examples
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 #' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
@@ -175,8 +182,27 @@ as_raster.clc <- function(clo,
 #' @details The function overwrites the table if it already exists.
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
+#' # ex1
+#' out_gpkg <- tempfile(fileext = ".gpkg")
+#' clo <- clo |>
+#'   save_to(out_gpkg)
+#'
+#' \dontrun{
+#' # ex2
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'user',
+#'   password = 'password'
+#' )
+#' clo <- clo |>
+#'   save_to(conn, 'exampledb')
+#' }
 #' @export
 save_to <- function(clo, to, database, schema, layer_name)
   UseMethod("save_to")
@@ -226,8 +252,33 @@ save_to.clc <- function(clo,
 #' @details The function overwrites the table if it already exists.
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
 #'
+#' out_gpkg <- tempfile(fileext = ".gpkg")
+#' clo <- clo |>
+#'   save_to(out_gpkg)
+#'
+#' # ex1
+#' clo <- clo |>
+#'   copy_to(out_gpkg, layers = 'clc')
+#'
+#' \dontrun{
+#' conn <- RPostgres::dbConnect(
+#'   RPostgres::Postgres(),
+#'   dbname = 'exampledb',
+#'   host = 'localhost',
+#'   port = '5432',
+#'   user = 'user',
+#'   password = 'password'
+#' )
+#' clo <- clo |>
+#'   save_to(conn, 'exampledb')
+#'
+#' # ex2
+#' clo <- clo |>
+#'   copy_to(conn, 'exampledb', layers = 'clc')
+#' }
 #' @export
 copy_to <- function(clo, to, database, schema, layers)
   UseMethod("copy_to")
@@ -261,7 +312,16 @@ copy_to.clc <- function(clo,
 #' @return A plot displaying the CLC data.
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
+#'
+#' temp_file <- tempfile(fileext = ".png")
+#' png(filename = temp_file, width = 800, height = 600)
+#'
+#' clo |>
+#'   plot_clc()
+#'
+#' dev.off()
 #'
 #' @export
 plot_clc <- function(clo, ...)
@@ -296,7 +356,29 @@ plot_clc.clc <- function(clo, ...) {
 #' @return A `ggplot2` object ready for rendering.
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
+#'
+#' p <- clo |>
+#'   prepare_plot()
+#'
+#' levels <- clo |>
+#'   get_levels()
+#'
+#' p <- p +
+#'   ggplot2::scale_fill_manual(
+#'     values = stats::setNames(levels$color, levels$id),
+#'     labels = stats::setNames(levels$description, levels$id),
+#'     name = ""
+#'   ) +
+#'   ggplot2::theme_minimal()
+#'
+#' temp_file <- tempfile(fileext = ".png")
+#' png(filename = temp_file, width = 800, height = 600)
+#'
+#' p
+#'
+#' dev.off()
 #'
 #' @export
 prepare_plot <- function(clo)

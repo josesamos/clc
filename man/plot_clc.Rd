@@ -31,6 +31,15 @@ It allows users to plot objects with a simplified interface, while allowing addi
 to be passed to `plot` using `...`.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
+
+temp_file <- tempfile(fileext = ".png")
+png(filename = temp_file, width = 800, height = 600)
+
+clo |>
+  plot_clc()
+
+dev.off()
 
 }

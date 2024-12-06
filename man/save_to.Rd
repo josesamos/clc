@@ -35,6 +35,25 @@ The destination is determined by the `to` argument.
 The function overwrites the table if it already exists.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
 
+# ex1
+out_gpkg <- tempfile(fileext = ".gpkg")
+clo <- clo |>
+  save_to(out_gpkg)
+
+\dontrun{
+# ex2
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'user',
+  password = 'password'
+)
+clo <- clo |>
+  save_to(conn, 'exampledb')
+}
 }

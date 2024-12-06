@@ -23,7 +23,6 @@ transformations automatically if necessary, ensuring the output is in the same
 CRS as the input polygon.
 }
 \examples{
-
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 clo <- clc(source = source_gpkg, layer_name = "clc")
 
