@@ -22,9 +22,20 @@ read_style_from_source <- function(source, layer_name = NULL) {
 
   # transform PostGIS style into GeoPackage style
   if ("id" %in% names(style)) {
-    names_style_geo <- c("f_table_catalog", "f_table_schema", "f_table_name", "f_geometry_column",
-                         "styleName", "styleQML", "styleSLD", "useAsDefault", "description",
-                         "owner", "ui", "update_time")
+    names_style_geo <- c(
+      "f_table_catalog",
+      "f_table_schema",
+      "f_table_name",
+      "f_geometry_column",
+      "styleName",
+      "styleQML",
+      "styleSLD",
+      "useAsDefault",
+      "description",
+      "owner",
+      "ui",
+      "update_time"
+    )
     style <- style[, tolower(names_style_geo)]
     names(style) <- names_style_geo
     style$f_table_catalog <- ''
@@ -49,8 +60,10 @@ get_layers_to_copy <- function(layers_to_copy, all_layers) {
   } else {
     missing_layers <- setdiff(layers_to_copy, all_layers)
     if (length(missing_layers) > 0) {
-      stop("The following layers do not exist in the destination: ",
-           paste(missing_layers, collapse = ", "))
+      stop(
+        "The following layers do not exist in the destination: ",
+        paste(missing_layers, collapse = ", ")
+      )
     }
   }
   layers_to_copy
@@ -86,7 +99,10 @@ get_existing_styles <- function(to, layers_in_to, style) {
 #' @return A data frame containing the new styles for the specified layers.
 #' @keywords internal
 #' @noRd
-generate_new_styles <- function(layers_to_copy, style, database = NULL, schema = NULL) {
+generate_new_styles <- function(layers_to_copy,
+                                style,
+                                database = NULL,
+                                schema = NULL) {
   n <- length(layers_to_copy)
   new_styles <- do.call(rbind, replicate(n, style, simplify = FALSE))
 
@@ -98,12 +114,10 @@ generate_new_styles <- function(layers_to_copy, style, database = NULL, schema =
     if (!is.null(database)) {
       new_styles$f_table_catalog[i] <- database
     }
-    new_styles$styleSLD[i] <- gsub(
-      style$f_table_name,
-      layers_to_copy[i],
-      new_styles$styleSLD[i],
-      fixed = TRUE
-    )
+    new_styles$styleSLD[i] <- gsub(style$f_table_name,
+                                   layers_to_copy[i],
+                                   new_styles$styleSLD[i],
+                                   fixed = TRUE)
   }
   if (!is.null(database)) {
     new_styles$useasdefault <- TRUE
@@ -124,15 +138,15 @@ generate_new_styles <- function(layers_to_copy, style, database = NULL, schema =
 #' @return A data frame containing the combined styles.
 #' @keywords internal
 #' @noRd
-combine_styles <- function(existing_styles, new_styles, layers_to_copy, to) {
+combine_styles <- function(existing_styles,
+                           new_styles,
+                           layers_to_copy,
+                           to) {
   if ('id' %in% names(new_styles)) {
     names(new_styles) <- tolower(names(new_styles))
     new_styles <- new_styles[, c('id', setdiff(names(new_styles), 'id'))]
   }
-  combined_styles <- rbind(
-    existing_styles[!(existing_styles$f_table_name %in% layers_to_copy), ],
-    new_styles
-  )
+  combined_styles <- rbind(existing_styles[!(existing_styles$f_table_name %in% layers_to_copy), ], new_styles)
   if ('id' %in% names(combined_styles)) {
     combined_styles$id <- 1:nrow(combined_styles)
   }
@@ -184,11 +198,13 @@ get_all_layers_pg <- function(conn, schema) {
 #' @noRd
 exist_layer_styles_pg <- function(conn, schema = "public") {
   table <- "layer_styles"
-  query_check <- sprintf("
+  query_check <- sprintf(
+    "
     SELECT 1
     FROM information_schema.tables
     WHERE table_name = '%s' AND table_schema = '%s';",
-                         table, schema
+    table,
+    schema
   )
   table_exists <- RPostgres::dbGetQuery(conn, query_check)
 
@@ -221,8 +237,11 @@ exist_layer_styles_pg <- function(conn, schema = "public") {
 #' @return The updated `layer_styles` table, returned invisibly.
 #' @keywords internal
 #' @noRd
-assign_styles_to_layers <- function(style, to, database = NULL, schema='public', layers = NULL) {
-
+assign_styles_to_layers <- function(style,
+                                    to,
+                                    database = NULL,
+                                    schema = 'public',
+                                    layers = NULL) {
   if (is.null(database)) {
     schema <- NULL
     all_layers <- sf::st_layers(to)$name
@@ -242,4 +261,3 @@ assign_styles_to_layers <- function(style, to, database = NULL, schema='public',
 
   invisible(combined_styles)
 }
-
