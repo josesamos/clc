@@ -6,9 +6,7 @@
 #' and a `clc_category` object.
 #'
 #' @param vector_layer A vector layer in `sf` format to be rasterized.
-#' @param field (Optional) A string, the field in the vector layer used to assign values
-#' in the raster. If NULL, the function will attempt to locate the column containing the
-#' CLC codes.
+#' @param field A string, the field in the vector layer used to assign values in the raster.
 #' @param category A `clc_category` object.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
 #' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
@@ -20,14 +18,10 @@
 #'
 #' @export
 clc_raster <- function(vector_layer,
-                       field = NULL,
+                       field,
                        category,
                        base_raster = NULL,
                        resolution = NULL) {
-
-  if (is.null(field)) {
-    field <- find_clc_column(vector_layer)
-  }
 
   vector_layer[[field]] <- as.integer(vector_layer[[field]])
   raster <- vector_to_raster_layers(vector_layer, field, base_raster, resolution)
@@ -98,54 +92,4 @@ vector_to_raster_layers <- function(vector_layer,
   return(raster_result)
 }
 
-
-#' Find Column Matching CLC Codes
-#'
-#' Identifies the name of the column in an `sf` object whose unique values
-#' are a subset of the specified CLC codes. Throws an error if no such column
-#' exists or if more than one column satisfies the condition.
-#'
-#' @param vector_layer An `sf` object representing the vector layer.
-#'
-#' @return The name of the column as a character string.
-#' @keywords internal
-#' @noRd
-find_clc_column <- function(vector_layer) {
-  if (!inherits(vector_layer, "sf")) {
-    stop("'vector_layer' must be an 'sf' object.")
-  }
-
-  # Check each column
-  matching_columns <- sapply(vector_layer, function(column) {
-    if (is.character(column)) {
-      all(unique(column) %in% clc_code)
-    } else {
-      FALSE
-    }
-  })
-
-  matched_names <- names(matching_columns)[matching_columns]
-
-  if (length(matched_names) == 0) {
-    # Check each column
-    matching_columns <- sapply(vector_layer, function(column) {
-      if (is.numeric(column)) {
-        all(unique(suppressWarnings(as.integer(column))) %in% as.integer(clc_code))
-      } else {
-        FALSE
-      }
-    })
-
-    matched_names <- names(matching_columns)[matching_columns]
-  }
-
-  if (length(matched_names) == 0) {
-    stop("No column found whose values are a CLC code.")
-  }
-  if (length(matched_names) > 1) {
-    stop("Multiple columns found whose values are CLC codes. Please specify explicitly.")
-  }
-
-  matched_names
-}
 

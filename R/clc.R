@@ -17,6 +17,8 @@
 #'
 #' @param source The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.
 #' @param layer_name The name of the layer in the source to be used.
+#' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
+#'   the function will attempt to locate the column containing the CLC codes.
 #' @return An object of class `clc`.
 #' @examples
 #' # ex1
@@ -36,12 +38,38 @@
 #' clo <- clc(source = conn, layer_name = "clc")
 #' }
 #' @export
-clc <- function(source, layer_name) {
+clc <- function(source, layer_name, field) {
   layer <- suppressWarnings(sf::st_read(source, layer = layer_name, quiet = TRUE))
   style <- read_style_from_source(source, layer_name)
 
+  if (is.null(field)) {
+    field <- find_clc_column(layer)
+  }
+
+  clc_new(layer, style, layer_name, field)
+}
+
+
+#' New `clc` object
+#'
+#' @param layer A vector layer in `sf` format.
+#' @param style A data frame containing a QGIS QML style in the column `styleQML`.
+#' The first entry is used for extraction.
+#' @param layer_name The name of the layer in the source to be used.
+#' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
+#'   the function will attempt to locate the column containing the CLC codes.
+#' @return An object of class `clc`.
+#' @keywords internal
+#' @noRd
+clc_new <- function(layer, style, layer_name, field) {
+  values <- sort(unique(layer[[field]]))
+  category <- clc_category(style, values)
+
   obj <- list(
     name = layer_name,
+    field = field,
+    values = values,
+    category = category,
     layer = layer,
     style = style
   )
@@ -49,7 +77,6 @@ clc <- function(source, layer_name) {
   class(obj) <- "clc"
   obj
 }
-
 
 #' Clip the Layer with a Polygon
 #'
@@ -83,14 +110,7 @@ cut_to_extent.clc <- function(clo, polygon) {
 
   layer <- clip_multipoligon(clo$layer, polygon)
 
-  obj <- list(
-    name = clo$name,
-    layer = layer,
-    style = clo$style
-  )
-
-  class(obj) <- "clc"
-  obj
+  clc_new(layer, clo$style, clo$layer_name, clo$field)
 }
 
 
@@ -100,9 +120,6 @@ cut_to_extent.clc <- function(clo, polygon) {
 #' representing the converted vector layer into raster format.
 #'
 #' @param clo A `clc` object.
-#' @param field (Optional) A string, the field in the vector layer used to assign values
-#' in the raster. If NULL, the function will attempt to locate the column containing the
-#' CLC codes.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
 #' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
 #' @return An object of class `clc_raster`.
@@ -125,24 +142,16 @@ cut_to_extent.clc <- function(clo, polygon) {
 #'      as_raster(resolution = 50)
 #'
 #' @export
-as_raster <- function(clo, field, base_raster, resolution)
+as_raster <- function(clo, base_raster, resolution)
   UseMethod("as_raster")
 
 #' @rdname as_raster
 #' @export
 as_raster.clc <- function(clo,
-                          field = NULL,
                           base_raster = NULL,
                           resolution = NULL) {
 
-  if (is.null(field)) {
-    field <- find_clc_column(clo$layer)
-  }
-
-  values <- sort(unique(clo$layer[[field]]))
-  category <- clc_category(clo$style, values)
-
-  clc_raster(clo$layer, field, category, base_raster, resolution)
+  clc_raster(clo$layer, clo$field, clo$category, base_raster, resolution)
 }
 
 
@@ -272,48 +281,71 @@ plot_clc <- function(clo, ...)
 #' @rdname plot_clc
 #' @export
 plot_clc.clc <- function(clo, ...) {
+
+  field <- clo$field
+  layer <- clo$layer
+  levels <- clo$category |> get_levels()
+
+  layer[[field]] <- factor(layer[[field]], levels = levels$id)
+
+  p <- ggplot2::ggplot(data = layer) +
+    ggplot2::geom_sf(ggplot2::aes(fill = !!rlang::sym(field))) +
+    ggplot2::scale_fill_manual(
+      values = setNames(levels$color, levels$id),
+      labels = setNames(levels$description, levels$id),
+      name = ""
+    ) +
+    ggplot2::theme_minimal()
+  p
 }
 
 
-# Plot vectorial
+#' Find Column Matching CLC Codes
+#'
+#' Identifies the name of the column in an `sf` object whose unique values
+#' are a subset of the specified CLC codes. Throws an error if no such column
+#' exists or if more than one column satisfies the condition.
+#'
+#' @param vector_layer An `sf` object representing the vector layer.
+#'
+#' @return The name of the column as a character string.
+#' @keywords internal
+#' @noRd
+find_clc_column <- function(vector_layer) {
+  if (!inherits(vector_layer, "sf")) {
+    stop("'vector_layer' must be an 'sf' object.")
+  }
 
+  # Check each column
+  matching_columns <- sapply(vector_layer, function(column) {
+    if (is.character(column)) {
+      all(unique(column) %in% clc_code)
+    } else {
+      FALSE
+    }
+  })
 
-# library(sf)
-# library(ggplot2)
-# library(xml2)
-#
-# # Ruta al GeoPackage
-# gpkg_path <- "ruta_a_tu_geopackage.gpkg"
-#
-# # Leer la capa
-# layer <- st_read(gpkg_path, layer = "nombre_de_la_capa")
-#
-# # Leer el estilo desde la tabla 'layer_styles'
-# styles <- st_read(gpkg_path, layer = "layer_styles")
-#
-# # Extraer el XML del estilo
-# style_xml <- read_xml(styles$styleQML[1])
-#
-# # Extraer categorías (asumiendo un campo <category>)
-# categories <- xml_find_all(style_xml, "//category")
-# values <- xml_attr(categories, "value")
-# labels <- xml_attr(categories, "label")
-# colors <- xml_attr(categories, "symbol")
-#
-# # Convertir colores a un formato interpretable
-# rgb2hex <- function(rgb) {
-#   rgb_vals <- as.numeric(unlist(strsplit(rgb, ",")))
-#   rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3], maxColorValue = 255)
-# }
-# colors_hex <- sapply(colors, rgb2hex)
-#
-# # Asociar colores a la capa según un atributo
-# layer$color <- colors_hex[match(layer$tu_campo, values)]
-#
-# # Visualizar con ggplot2
-# ggplot(data = layer) +
-#   geom_sf(aes(fill = color), color = NA) +
-#   scale_fill_identity() +
-#   theme_minimal()
+  matched_names <- names(matching_columns)[matching_columns]
 
+  if (length(matched_names) == 0) {
+    # Check each column
+    matching_columns <- sapply(vector_layer, function(column) {
+      if (is.numeric(column)) {
+        all(unique(suppressWarnings(as.integer(column))) %in% as.integer(clc_code))
+      } else {
+        FALSE
+      }
+    })
 
+    matched_names <- names(matching_columns)[matching_columns]
+  }
+
+  if (length(matched_names) == 0) {
+    stop("No column found whose values are a CLC code.")
+  }
+  if (length(matched_names) > 1) {
+    stop("Multiple columns found whose values are CLC codes. Please specify explicitly.")
+  }
+
+  matched_names
+}

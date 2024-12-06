@@ -6,7 +6,7 @@
 \usage{
 clc_raster(
   vector_layer,
-  field = NULL,
+  field,
   category,
   base_raster = NULL,
   resolution = NULL
@@ -15,9 +15,7 @@ clc_raster(
 \arguments{
 \item{vector_layer}{A vector layer in `sf` format to be rasterized.}
 
-\item{field}{(Optional) A string, the field in the vector layer used to assign values
-in the raster. If NULL, the function will attempt to locate the column containing the
-CLC codes.}
+\item{field}{A string, the field in the vector layer used to assign values in the raster.}
 
 \item{category}{A `clc_category` object.}
 

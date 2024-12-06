@@ -18,6 +18,8 @@ Depends:
     R (>= 3.5)
 Imports: 
     gdalUtilities,
+    ggplot2,
+    rlang,
     RPostgres,
     sf,
     terra,

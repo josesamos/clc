@@ -4,12 +4,15 @@
 \alias{clc}
 \title{`clc` S3 Class}
 \usage{
-clc(source, layer_name)
+clc(source, layer_name, field)
 }
 \arguments{
 \item{source}{The source of the vector layer. Can be a file path to a GeoPackage or a PostGIS connection.}
 
 \item{layer_name}{The name of the layer in the source to be used.}
+
+\item{field}{(Optional) A string, the layer field that contains CLC codes. If NULL,
+the function will attempt to locate the column containing the CLC codes.}
 }
 \value{
 An object of class `clc`.
