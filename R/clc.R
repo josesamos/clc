@@ -81,7 +81,7 @@ cut_to_extent <- function(clo, polygon)
 #' @export
 cut_to_extent.clc <- function(clo, polygon) {
 
-  layer <- safe_clip_multipolygon(clo$layer, polygon)
+  layer <- clip_multipoligon(clo$layer, polygon)
 
   obj <- list(
     name = clo$name,

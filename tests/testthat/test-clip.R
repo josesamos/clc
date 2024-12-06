@@ -52,7 +52,7 @@ test_that("clip_vector handles CRS transformations", {
 })
 
 
-test_that("safe_clip_multipolygon handles correct clipping", {
+test_that("clip_multipoligon handles correct clipping", {
   vector <- sf::st_as_sf(data.frame(
     id = 1:2,
     geometry = sf::st_sfc(sf::st_polygon(list(
@@ -69,13 +69,13 @@ test_that("safe_clip_multipolygon handles correct clipping", {
     )))
   ), crs = 4326)
 
-  result <- safe_clip_multipolygon(vector, polygon)
+  result <- clip_multipoligon(vector, polygon)
 
   expect_s3_class(result, "sf")
   expect_equal(nrow(result), 2)
 })
 
-test_that("safe_clip_multipolygon handles invalid MULTIPOLYGON encoding",
+test_that("clip_multipoligon handles invalid MULTIPOLYGON encoding",
           {
             vector <- sf::st_as_sf(data.frame(
               id = 1:2,
@@ -96,13 +96,13 @@ test_that("safe_clip_multipolygon handles invalid MULTIPOLYGON encoding",
               )))
             ), crs = 4326)
 
-            result <- safe_clip_multipolygon(vector, polygon)
+            result <- clip_multipoligon(vector, polygon)
 
             expect_s3_class(result, "sf")
             expect_equal(nrow(result), 2)
           })
 
-test_that("safe_clip_multipolygon handles CRS transformations", {
+test_that("clip_multipoligon handles CRS transformations", {
   vector <- sf::st_as_sf(data.frame(
     id = 1:2,
     geometry = sf::st_sfc(sf::st_polygon(list(
@@ -117,14 +117,14 @@ test_that("safe_clip_multipolygon handles CRS transformations", {
   )))), crs = 4326)
   polygon <- sf::st_transform(polygon, crs = 32630)
 
-  result <- safe_clip_multipolygon(vector, polygon)
+  result <- clip_multipoligon(vector, polygon)
 
   expect_s3_class(result, "sf")
   expect_equal(nrow(result), 2)
   expect_equal(sf::st_crs(result), sf::st_crs(polygon))
 })
 
-test_that("safe_clip_multipolygon returns empty for disjoint geometries",
+test_that("clip_multipoligon returns empty for disjoint geometries",
           {
             vector <- sf::st_as_sf(data.frame(
               id = 1:2,
@@ -142,7 +142,7 @@ test_that("safe_clip_multipolygon returns empty for disjoint geometries",
               )))
             ), crs = 4326)
 
-            result <- safe_clip_multipolygon(vector, polygon)
+            result <- clip_multipoligon(vector, polygon)
 
             expect_s3_class(result, "sf")
             expect_equal(nrow(result), 0)
@@ -162,14 +162,14 @@ test_that("clip_vector works correctly", {
   expect_equal(colnames(clipped), colnames(clc))
 })
 
-test_that("safe_clip_multipolygon works correctly", {
+test_that("clip_multipoligon works correctly", {
   gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
   clc <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
   lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
 
   clc_non_multipolygon <- suppressWarnings(sf::st_cast(clc, "POLYGON"))
 
-  clipped <- safe_clip_multipolygon(clc_non_multipolygon, lanjaron)
+  clipped <- clip_multipoligon(clc_non_multipolygon, lanjaron)
 
   expect_s3_class(clipped, "sf")
 
