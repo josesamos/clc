@@ -140,9 +140,9 @@ as_raster.clc <- function(clo,
 }
 
 
-#' Save a CLC layer and its style to a GeoPackage or PostGIS database
+#' Save a layer and its style to a GeoPackage or PostGIS database
 #'
-#' This function saves a CLC layer and its style to a GeoPackage file or a PostGIS database.
+#' This function saves a layer and its style to a GeoPackage file or a PostGIS database.
 #' The destination is determined by the `to` argument.
 #'
 #' @param clo A `clc` object.
@@ -161,8 +161,6 @@ as_raster.clc <- function(clo,
 #'
 #' @examples
 #'
-#' esa <- system.file("extdata", "esa", package = "clc")
-#' clo <- clc(dir = esa)
 #'
 #' r <- clo |>
 #'      save_to()
@@ -191,6 +189,49 @@ save_to.clc <- function(clo,
   ))
 
   assign_styles_to_layers(clo$style, to, database, schema, layers = layer_name)
+  clo
+}
+
+
+#' Copy a style to a GeoPackage or PostGIS database
+#'
+#' This function copies a style to the specified layers in a GeoPackage file or
+#' a PostGIS database. The destination is determined by the `to` argument.
+#'
+#' @param clo A `clc` object.
+#' @param to A data destination for the output. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
+#' @param database A string, database name, only in case the destination is in PostGIS.
+#' @param schema A string, schema name, only in case the destination is in PostGIS.
+#'   Defaults to `'public'`.
+#' @param layers An optional character vector specifying the names of layers
+#'   in the destination to which the styles should be applied.
+#'   If `NULL` (default), applies the style to all layers.
+#'
+#' @return clo A `clc` object.
+#'
+#' @details The function overwrites the table if it already exists.
+#'
+#' @examples
+#'
+#'
+#' r <- clo |>
+#'      copy_to()
+#'
+#' @export
+copy_to <- function(clo, to, database, schema, layers)
+  UseMethod("copy_to")
+
+
+#' @rdname copy_to
+#' @export
+copy_to.clc <- function(clo,
+                        to,
+                        database = NULL,
+                        schema = 'public',
+                        layers = NULL) {
+  assign_styles_to_layers(clo$style, to, database, schema, layers)
   clo
 }
 

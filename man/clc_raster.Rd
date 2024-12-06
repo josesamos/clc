@@ -36,3 +36,7 @@ and a `clc_category` object.
 The function requires either `base_raster` or `resolution` to be provided.
 If both are missing, an error is raised.
 }
+\examples{
+#
+
+}

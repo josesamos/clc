@@ -14,6 +14,7 @@
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
 #' @examples
+#' #
 #'
 #' @export
 clc_raster <- function(vector_layer,
