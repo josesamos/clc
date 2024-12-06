@@ -2,7 +2,7 @@
 % Please edit documentation in R/clc.R
 \name{clc}
 \alias{clc}
-\title{`clc` S3 class}
+\title{`clc` S3 Class}
 \usage{
 clc(source, layer_name)
 }

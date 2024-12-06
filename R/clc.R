@@ -6,7 +6,7 @@
   )
 }
 
-#' `clc` S3 class
+#' `clc` S3 Class
 #'
 #' Create an object of class `clc`.
 #'
@@ -100,7 +100,9 @@ cut_to_extent.clc <- function(clo, polygon) {
 #' representing the converted vector layer into raster format.
 #'
 #' @param clo A `clc` object.
-#' @param field The field in the vector layer used to assign values in the raster.
+#' @param field (Optional) A string, the field in the vector layer used to assign values
+#' in the raster. If NULL, the function will attempt to locate the column containing the
+#' CLC codes.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
 #' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster` is not provided.
 #' @return An object of class `clc_raster`.
@@ -116,11 +118,11 @@ cut_to_extent.clc <- function(clo, polygon) {
 #'
 #' # ex1
 #' r <- clo |>
-#'      as_raster( field = "CODE_18", base_raster = base_raster)
+#'      as_raster(base_raster = base_raster)
 #'
 #' # ex2
 #' r <- clo |>
-#'      as_raster( field = "CODE_18", resolution = 50)
+#'      as_raster(resolution = 50)
 #'
 #' @export
 as_raster <- function(clo, field, base_raster, resolution)
@@ -129,9 +131,13 @@ as_raster <- function(clo, field, base_raster, resolution)
 #' @rdname as_raster
 #' @export
 as_raster.clc <- function(clo,
-                          field,
+                          field = NULL,
                           base_raster = NULL,
                           resolution = NULL) {
+
+  if (is.null(field)) {
+    field <- find_clc_column(clo$layer)
+  }
 
   values <- sort(unique(clo$layer[[field]]))
   category <- clc_category(clo$style, values)
@@ -140,7 +146,7 @@ as_raster.clc <- function(clo,
 }
 
 
-#' Save a layer and its style to a GeoPackage or PostGIS database
+#' Save a Layer and its Style to a GeoPackage or PostGIS Database
 #'
 #' This function saves a layer and its style to a GeoPackage file or a PostGIS database.
 #' The destination is determined by the `to` argument.
@@ -193,7 +199,7 @@ save_to.clc <- function(clo,
 }
 
 
-#' Copy a style to a GeoPackage or PostGIS database
+#' Copy a Style to a GeoPackage or PostGIS Database
 #'
 #' This function copies a style to the specified layers in a GeoPackage file or
 #' a PostGIS database. The destination is determined by the `to` argument.
@@ -234,6 +240,40 @@ copy_to.clc <- function(clo,
   assign_styles_to_layers(clo$style, to, database, schema, layers)
   clo
 }
+
+
+#' Plot CORINE Land Cover Data
+#'
+#' A generic function to plot CORINE Land Cover (CLC) data stored in objects of supported classes.
+#' The function adapts the plot based on the class of the input data (vectorial or raster format).
+#'
+#' It allows users to plot objects with a simplified interface, while allowing additional arguments
+#' to be passed to `plot` using `...`.
+#'
+#' @param clo An object containing CLC data. This must be an instance of a supported class, such as:
+#'   - A vectorial data object (e.g., `sf` object with polygons).
+#'   - A raster data object (e.g., `terra::SpatRaster`).
+#' @param ... Additional arguments passed to the specific method for the object's class.
+#'
+#' @return A plot displaying the CLC data.
+#' @details
+#' The function dispatches to specific methods depending on the class of `clo`. It supports:
+#' - Vectorial CLC data, where it plots polygons with their associated styles or categories.
+#' - Raster CLC data, where it visualizes the raster values with a legend based on categories.
+#'
+#' @examples
+#' #
+#'
+#' @export
+plot_clc <- function(clo, ...)
+  UseMethod("plot_clc")
+
+
+#' @rdname plot_clc
+#' @export
+plot_clc.clc <- function(clo, ...) {
+}
+
 
 # Plot vectorial
 

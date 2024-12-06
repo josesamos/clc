@@ -1,4 +1,4 @@
-#' `clc_category` S3 class
+#' `clc_category` S3 Class
 #'
 #' Create an object of class `clc_category`.
 #'
@@ -30,6 +30,76 @@ clc_category <- function(style, values = NULL) {
 
   class(obj) <- "clc_category"
   obj
+}
+
+
+#' Convert a `clc_category` object to a data frame
+#'
+#' This generic function converts an object of class `clc_category` into a
+#' data frame. The resulting data frame contains the fields `id`,
+#' `description`, and `color` from the `clc_category` object.
+#'
+#' @param cloc A `clc_category` object.
+#'
+#' @return A data frame with columns:
+#'   - `id`: The identifier of the category.
+#'   - `description`: A textual description of the category.
+#'   - `color`: The color associated with the category.
+#'
+#' @examples
+#' # Create an example `clc_category` object
+#' cloc <- list(id = "001", description = "Example Category", color = "Red")
+#' class(cloc) <- "clc_category"
+#'
+#' # Convert the object to a data frame
+#' df <- get_data_frame(cloc)
+#' print(df)
+#'
+#' @export
+get_data_frame <- function(cloc)
+  UseMethod("get_data_frame")
+
+
+#' @rdname get_data_frame
+#' @export
+get_data_frame.clc_category <- function(cloc) {
+  data.frame(
+    id = cloc$id,
+    description = cloc$description,
+    color = cloc$color,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Retrieve colors from a `clc_category` object
+#'
+#' This generic function extracts the color values associated with a
+#' `clc_category` object. It returns a character vector containing the
+#' `color` field from the object.
+#'
+#' @param cloc A `clc_category` object.
+#'
+#' @return A character vector of colors.
+#'
+#' @examples
+#' # Create an example `clc_category` object
+#' cloc <- list(id = "001", description = "Example Category", color = "Red")
+#' class(cloc) <- "clc_category"
+#'
+#' # Get the color from the object
+#' color <- get_colors(cloc)
+#' print(color)
+#'
+#' @export
+get_colors <- function(cloc)
+  UseMethod("get_colors")
+
+
+#' @rdname get_colors
+#' @export
+get_colors.clc_category <- function(cloc) {
+  cloc$color
 }
 
 

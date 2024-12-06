@@ -3,7 +3,7 @@
 \name{save_to}
 \alias{save_to}
 \alias{save_to.clc}
-\title{Save a layer and its style to a GeoPackage or PostGIS database}
+\title{Save a Layer and its Style to a GeoPackage or PostGIS Database}
 \usage{
 save_to(clo, to, database, schema, layer_name)
 
@@ -36,8 +36,6 @@ The function overwrites the table if it already exists.
 }
 \examples{
 
-esa <- system.file("extdata", "esa", package = "clc")
-clo <- clc(dir = esa)
 
 r <- clo |>
      save_to()

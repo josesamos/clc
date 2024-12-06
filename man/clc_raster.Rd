@@ -2,11 +2,11 @@
 % Please edit documentation in R/clc_raster.R
 \name{clc_raster}
 \alias{clc_raster}
-\title{`clc_raster` S3 class}
+\title{`clc_raster` S3 Class}
 \usage{
 clc_raster(
   vector_layer,
-  field,
+  field = NULL,
   category,
   base_raster = NULL,
   resolution = NULL
@@ -15,7 +15,9 @@ clc_raster(
 \arguments{
 \item{vector_layer}{A vector layer in `sf` format to be rasterized.}
 
-\item{field}{The field in the vector layer used to assign values in the raster.}
+\item{field}{(Optional) A string, the field in the vector layer used to assign values
+in the raster. If NULL, the function will attempt to locate the column containing the
+CLC codes.}
 
 \item{category}{A `clc_category` object.}
 

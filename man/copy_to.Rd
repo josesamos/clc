@@ -3,7 +3,7 @@
 \name{copy_to}
 \alias{copy_to}
 \alias{copy_to.clc}
-\title{Copy a style to a GeoPackage or PostGIS database}
+\title{Copy a Style to a GeoPackage or PostGIS Database}
 \usage{
 copy_to(clo, to, database, schema, layers)
 
@@ -37,8 +37,6 @@ The function overwrites the table if it already exists.
 }
 \examples{
 
-esa <- system.file("extdata", "esa", package = "clc")
-clo <- clc(dir = esa)
 
 r <- clo |>
      copy_to()

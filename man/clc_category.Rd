@@ -2,7 +2,7 @@
 % Please edit documentation in R/clc_category.R
 \name{clc_category}
 \alias{clc_category}
-\title{`clc_category` S3 class}
+\title{`clc_category` S3 Class}
 \usage{
 clc_category(style, values = NULL)
 }

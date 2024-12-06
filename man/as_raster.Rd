@@ -7,12 +7,14 @@
 \usage{
 as_raster(clo, field, base_raster, resolution)
 
-\method{as_raster}{clc}(clo, field, base_raster = NULL, resolution = NULL)
+\method{as_raster}{clc}(clo, field = NULL, base_raster = NULL, resolution = NULL)
 }
 \arguments{
 \item{clo}{A `clc` object.}
 
-\item{field}{The field in the vector layer used to assign values in the raster.}
+\item{field}{(Optional) A string, the field in the vector layer used to assign values
+in the raster. If NULL, the function will attempt to locate the column containing the
+CLC codes.}
 
 \item{base_raster}{(Optional) A raster object to use as the base for rasterization.}
 
@@ -39,10 +41,10 @@ base_raster <- terra::rast(raster_path)
 
 # ex1
 r <- clo |>
-     as_raster( field = "CODE_18", base_raster = base_raster)
+     as_raster(base_raster = base_raster)
 
 # ex2
 r <- clo |>
-     as_raster( field = "CODE_18", resolution = 50)
+     as_raster(resolution = 50)
 
 }

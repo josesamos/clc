@@ -60,3 +60,74 @@ test_that("vector_to_raster_layers stops if the vector does not overlap with the
   )
 })
 
+
+
+test_that("find_clc_column identifies the correct column in the clc layer", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+
+  # Test for the correct column
+  column_name <- find_clc_column(clc_layer)
+  expect_equal(column_name, "CODE_18")
+})
+
+
+test_that("find_clc_column identifies the correct numeric column in the clc layer", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  clc_layer[["CODE_18"]] <- as.integer(clc_layer[["CODE_18"]])
+
+  # Test for the correct column
+  column_name <- find_clc_column(clc_layer)
+  expect_equal(column_name, "CODE_18")
+})
+
+
+test_that("find_clc_column throws an error when no column matches in lanjaron layer", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  lanjaron_layer <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
+
+  # Test for error when no column matches
+  expect_error(find_clc_column(lanjaron_layer),
+                         "No column found whose values are a CLC code.")
+})
+
+test_that("find_clc_column throws an error when multiple columns match", {
+  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
+
+  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
+  clc_layer$duplicate_column <- clc_layer$CODE_18
+
+  # Test for error when multiple columns match
+  expect_error(find_clc_column(clc_layer),
+                         "Multiple columns found whose values are CLC codes. Please specify explicitly.")
+})
+
+test_that("find_clc_column works with an empty sf object", {
+  empty_layer <- sf::st_sf(sf::st_sfc(), data.frame())
+
+  # Test for error when the sf object is empty
+  expect_error(find_clc_column(empty_layer),
+                         "No column found whose values are a CLC code.")
+})
+
+
+test_that("plot function runs without errors", {
+
+  source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+  clo <- clc(source = source_gpkg, layer_name = "clc")
+
+  r <- clo |>
+       as_raster(resolution = 50)
+
+  temp_file <- tempfile(fileext = ".png")
+  png(filename = temp_file, width = 800, height = 600)
+
+  expect_silent(plot_clc(r))
+
+  dev.off()
+})
+
