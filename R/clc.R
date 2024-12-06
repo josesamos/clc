@@ -1,6 +1,6 @@
 .onLoad <- function(libname, pkgname) {
   utils::data(
-    "clc_code",
+    "clc_codes",
     package = pkgname,
     envir = parent.env(environment())
   )
@@ -355,7 +355,7 @@ find_clc_column <- function(vector_layer) {
   # Check each column
   matching_columns <- sapply(vector_layer, function(column) {
     if (is.character(column)) {
-      all(unique(column) %in% clc_code)
+      all(unique(column) %in% clc_codes)
     } else {
       FALSE
     }
@@ -367,7 +367,7 @@ find_clc_column <- function(vector_layer) {
     # Check each column
     matching_columns <- sapply(vector_layer, function(column) {
       if (is.numeric(column)) {
-        all(unique(suppressWarnings(as.integer(column))) %in% as.integer(clc_code))
+        all(unique(suppressWarnings(as.integer(column))) %in% as.integer(clc_codes))
       } else {
         FALSE
       }

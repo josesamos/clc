@@ -5,4 +5,4 @@
 #'
 #' @format A vector.
 #'
-"clc_code"
+"clc_codes"
