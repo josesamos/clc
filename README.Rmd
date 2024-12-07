@@ -39,7 +39,7 @@ This is a basic example which shows you how to solve a common problem.
 
 Read the CLC data from the GeoPackage and visualize the CLC data with styles.
 
-```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 1, original"}
 library(clc)
 
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -54,7 +54,7 @@ clc_data |>
 Read the clipping layer (region of interest), clip the CLC data to the region of interest and visualize the clipped CLC data with styles.
 
 
-```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 2, clipped"}
 region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
 
 clc_clipped <- clc_data |> 
@@ -66,7 +66,7 @@ clc_clipped |>
 
 Convert the clipped CLC data to raster format and visualize it with styles.
 
-```{r example-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 3, raster"}
 raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
 base_raster <- terra::rast(raster_path)

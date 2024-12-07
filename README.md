@@ -52,7 +52,7 @@ clc_data |>
   plot_clc()
 ```
 
-<img src="man/figures/README-example-1-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-1-1.png" alt="CLC example 1, original" width="100%" style="display: block; margin: auto;" />
 
 Read the clipping layer (region of interest), clip the CLC data to the
 region of interest and visualize the clipped CLC data with styles.
@@ -67,7 +67,7 @@ clc_clipped |>
   plot_clc()
 ```
 
-<img src="man/figures/README-example-2-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-2-1.png" alt="CLC example 2, clipped" width="100%" style="display: block; margin: auto;" />
 
 Convert the clipped CLC data to raster format and visualize it with
 styles.
@@ -84,7 +84,7 @@ clc_raster |>
   plot_clc()
 ```
 
-<img src="man/figures/README-example-3-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-3-1.png" alt="CLC example 3, raster" width="100%" style="display: block; margin: auto;" />
 
 Save the clipped data and its styles to a new GeoPackage.
 

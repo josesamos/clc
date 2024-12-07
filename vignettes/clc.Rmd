@@ -120,7 +120,7 @@ This example demonstrates how to use a PostGIS database connection instead of a 
 
 Once the object is created with its associated style, the next step is to visualize the data with the applied style. This is achieved by using the following function:
 
-```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 1, original"}
 clc_data |> 
   plot_clc()
 ```
@@ -133,7 +133,7 @@ However, instead of directly using `plot_clc`, the `prepare_plot` function is in
 
 To complete the plot configuration, the missing elements, such as color and labels, can be obtained using the `get_levels` function. These elements can then be used to define the presentation according to the user's preferences. For example, the following code achieves the same result as `plot_clc`, but provides more flexibility for further customization:
 
-```{r example-1-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-1-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 1, original with prepare plot"}
 p <- clc_data |>
   prepare_plot()
 
@@ -171,7 +171,7 @@ Once the data is clipped, it is visualized using the `plot_clc` function, which 
 Here’s an example of how to clip the CLC data to a region and visualize the result:
 
 
-```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 2, clipped"}
 # Read the clipping layer (region of interest)
 region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
 
@@ -238,7 +238,7 @@ The `copy_to` function in the `clc` package enables you to copy only the style d
 
 Below is an example demonstrating how to use `copy_to`:
 
-```{r example-4-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-4-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 3, copying styles"}
 # Create a new GeoPackage without style definition
 destination_gpkg <- tempfile(fileext = ".gpkg")
 clc_layer <- sf::st_read(source_gpkg, layer = "clc", quiet = TRUE)
@@ -305,7 +305,7 @@ These examples illustrate the versatility of the raster output, making it suitab
 
 For raster visualization, the `terra::plot` function is used with the color scheme configured (using the `col` parameter) to match the CLC styles. The `plot_clc` function allows customization of all other parameters supported by `terra::plot`.
 
-```{r example-3-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+```{r example-3-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center', fig.alt="CLC example 4, raster"}
 clc_raster1 |> 
   plot_clc()
 ```
