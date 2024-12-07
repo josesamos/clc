@@ -1,8 +1,10 @@
 ---
-title: "clc"
+title: "Tools for Working with CORINE Land Cover Data and Styles"
+author: "Jose Samos (jsamos@ugr.es)"
+date: "2024-12-07"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{clc}
+  %\VignetteIndexEntry{Tools for Working with CORINE Land Cover Data and Styles}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,19 +16,229 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
+
+This section introduces *CORINE Land Cover*. It also presents the `clc` package, highlighting its functionalities. Finally, the document's structure is outlined.  
+
+## *CORINE Land Cover*
+
+*CORINE Land Cover (CLC)* is a standardized geospatial dataset that provides detailed land cover and land use information across Europe. Established under the European Commission's *CORINE* (*Coordination of Information on the Environment*) program, CLC offers consistent and comparable land cover data for environmental monitoring and spatial planning. 
+
+CLC aligns with the *INSPIRE Directive* (*Infrastructure for Spatial Information in the European Community*), which establishes a framework for spatial data interoperability across Europe. CLC datasets conform to INSPIRE's standards for land cover data, ensuring compatibility with other datasets and supporting European environmental and planning initiatives.
+
+CLC is available in both vector and raster formats:
+
+- Vector Format: Represents land cover polygons, each categorized using predefined CLC codes. This format typically includes an associated style definition (e.g., QML or SLD) that ensures consistent visualization of land cover classes across platforms.
+
+- Raster Format: Provides land cover data in a gridded format with cell values corresponding to CLC codes.
+
+Each CLC code is associated with a specific *color* and *description* as part of its classification system. Style files (e.g., QGIS QML or SLD files) are often included with CLC datasets, enabling standardized visualization of land cover classes for accurate and intuitive map representation. In GeoPackage and PostGIS formats, styles are often stored in a dedicated table, which contains metadata associated with each layer.
+ 
+## The `clc` package
+
+The goal of the `clc` package is to support operations with CLC data, addressing the challenges and specificities it presents, particularly those related to its associated styles. Its main characteristics are the following:
+
+1. It automates the extraction, application, and preservation of styles across workflows.
+
+1. Tasks such as reading CLC vector data, applying styles, clipping layers, and converting vector data to raster format involve multiple steps. The `clc` package provides simplified, high-level functions to handle these tasks efficiently.
+
+1. It handles CLC data in both GeoPackage and PostGIS formats, supporting them as sources and destinations.
+
+The package is organized into two families of functions:  
+
+1. Class-Based Operations: These functions rely on the **`clc` class**, enabling users to perform a full range of operations, including:  
+   - Reading CLC data from GeoPackage or PostGIS.  
+   - Visualizing CLC vector data with its associated styles.  
+   - Clipping CLC data to specific regions, with its styles.  
+   - Converting CLC data to raster format.  
+   - Visualizing CLC raster data with its associated styles.  
+   - Exporting CLC data and styles to GeoPackage or PostGIS.  
+
+2. Independent Functions: A minimal set of standalone functions designed for specific tasks. These functions implement essential features for directly working with CLC data, such as retrieving or saving styles, without requiring the use of the `clc` class.  
+
+By offering both comprehensive and lightweight approaches, the `clc` package meets the needs of users seeking advanced workflows or those requiring straightforward solutions for handling CLC data.
+
+
+## Document Structure 
+
+Apart from this introduction, the document begins by presenting the data available within the package. It then demonstrates the functionalities of the `clc` class through a complete usage example. Following this, the document showcases the independent functions and their application to the same example. Finally, it concludes with a summary of the functionalities and their benefits.
+
+# Data Included in the Package
+
+The package includes the following datasets to support workflows with CORINE Land Cover (CLC):  
+
+- `clc.gpkg`, a GeoPackage file containing the following vector layers:  
+  - `clc`: A fragment of CLC data for a region in Granada, Spain, stored in vector format. This layer includes the associated style definitions, which are stored within the same GeoPackage. The data was sourced from the [*CNIG (Centro Nacional de Información Geográfica)*](https://www.cnig.es/).  
+  - `lanjaron`: A polygonal vector layer representing the boundaries of the municipality of Lanjarón, located in Granada, Spain. This data was sourced from the [*DERA (Datos Espaciales de Referencia de Andalucía)*](https://www.juntadeandalucia.es/institutodeestadisticaycartografia/dega/datos-espaciales-de-referencia-de-andalucia-dera).  
+
+- `mdt.tif`, a raster file containing a Digital Terrain Model (DTM) for the same region as the `clc` and `lanjaron` layers. This data was also obtained from the *CNIG*.  
+
+These datasets provide a foundational base for exploring the functionalities of the package, including vector and raster data processing, visualization, and analysis.  
+
+
+# Class-Based Operations
+
+
+## Create an object of class `clc`
+
+We start by showing how to create an object of class `clc` from a vector layer. The `source` parameter specifies the source of the vector data, which can be a path to a GeoPackage file or a `DBI` connection to a PostGIS database. The `layer_name` parameter is the name of the specific layer in the source to be used.
+
+
 ```{r setup}
 library(clc)
+
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+
+clc_data <- clc(source = source_gpkg, layer_name = "clc")
 ```
 
-## CLC
+To create a `clc` object, the vector layer must have associated styles in its source. These styles are essential as they define the visual appearance of the CLC data, including category colors and labels. 
 
-The goal of `clc` is to support operations with CLC data, addressing the challenges and specificities it presents, particularly those related to its associated styles. Its main characteristics are the following:
+We can include a parameter called `field`, which is optional. It should only be provided if the function is unable to automatically determine the field containing the CLC codes in the layer. This can happen if there are multiple fields or none at all. If `field` is set to `NULL` (default), the function will attempt to locate the appropriate column that contains the CLC codes based on the layer's structure.
 
-1. **Standardized Handling of CLC Styles**  
-   CLC data includes predefined categories and associated styles, which must be correctly interpreted and applied for consistent visualization. The `clc` package automates the extraction, application, and preservation of styles across workflows.
+The function returns an object of class `clc`, which can then be used for further analysis and visualization.
 
-2. **Streamlined Vector and Raster Workflows**  
-   Tasks such as reading CLC vector data, applying styles, clipping layers, and converting vector data to raster format involve multiple steps. The `clc` package provides simplified, high-level functions to handle these tasks efficiently.
+In this case, the following code would achieve the same result, assuming the database contains the same layer and styles stored. However, it is not executed here because a remote database is required, which is not suitable for the example provided within the package.
 
-3. **Support for Multiple Data Sources and Targets**  
-   The `clc` package handles CLC data in both GeoPackage and PostGIS formats, supporting them as sources and destinations.
+```{r setup2, eval=FALSE}
+library(clc)
+
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb',
+  host = 'localhost',
+  port = '5432',
+  user = 'user',
+  password = 'password'
+)
+
+clc_data <- clc(source = conn, layer_name = "clc")
+```
+
+This example demonstrates how to use a PostGIS database connection instead of a GeoPackage file. However, since the example is designed to run within the package and without external dependencies like a live database, we use the local `clc.gpkg` file instead.
+
+
+## Plot of Vector CLC Data
+
+Once the object is created with its associated style, the next step is to visualize the data with the applied style. This is achieved by using the following function:
+
+```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+clc_data |> 
+  plot_clc()
+```
+
+This command automatically considers the style that was previously associated with the `clc` object. It ensures that the vector data is displayed with the appropriate colors and descriptions, as defined in the source, without the need for further styling adjustments.
+
+The vector plot for CLC data is created using the `ggplot2::ggplot` function. This function is defined using other functions from the `ggplot2` package to ensure the plot is displayed  with appropriate styling and formatting. 
+
+However, instead of directly using `plot_clc`, the `prepare_plot` function is included in the package to define the basic elements of the plot. This function prepares the necessary components for visualization, but leaves the final presentation and customization up to the user.
+
+To complete the plot configuration, the missing elements, such as color and labels, can be obtained using the `get_levels` function. These elements can then be used to define the presentation according to the user's preferences. For example, the following code achieves the same result as `plot_clc`, but provides more flexibility for further customization:
+
+```{r example-1-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+p <- clc_data |>
+  prepare_plot()
+
+levels <- clc_data |>
+  get_levels()
+
+p <- p +
+  ggplot2::scale_fill_manual(
+    values = stats::setNames(levels$color, levels$id),
+    labels = stats::setNames(levels$description, levels$id),
+    name = ""
+  ) +
+  ggplot2::theme(
+    legend.position = "right",
+    legend.key.height = ggplot2::unit(2, "cm"),
+    legend.title = ggplot2::element_text(size = 12),
+    legend.text = ggplot2::element_text(size = 10)
+  ) +
+  ggplot2::theme_minimal()
+
+p
+```
+
+
+This code customizes the plot by defining the color scale, adding labels, and modifying the appearance of the legend. It allows for full control over how the data is presented, beyond the default configuration provided by `plot_clc`.
+
+## Clipping CLC Data to a Region of Interest
+
+In this section, we focus on the process of clipping CLC data to a region of interest, using the provided `cut_to_extent` function. This function is an essential tool for isolating specific areas within the CLC data, allowing users to work with smaller, relevant subsets of the data.
+
+First, we read the clipping layer (the region of interest) from the source GeoPackage, which defines the geographical boundaries for the clip. After loading the region, we use the `cut_to_extent` function to clip the CLC data to this region.
+
+The clipping process works by aligning the CLC data with the boundaries of the specified region, ensuring that only the relevant portion of the CLC data is retained.
+
+Once the data is clipped, it is visualized using the `plot_clc` function, which applies the appropriate styling and provides a clear representation of the clipped CLC data.
+
+Here’s an example of how to clip the CLC data to a region and visualize the result:
+
+
+```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+# Read the clipping layer (region of interest)
+region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
+
+# Clip the CLC data to the region of interest
+clc_clipped <- clc_data |> 
+  cut_to_extent(region)
+
+# Visualize the clipped CLC data with its associated style
+clc_clipped |> 
+  plot_clc()
+```
+
+This workflow demonstrates how the `cut_to_extent` function can be used to subset CLC data by a specific region and visualize the clipped data, all while retaining the correct styling.
+
+## Saving CLC Data and Styles to a GeoPackage
+
+In this section, we focus on how to save the CLC data, along with its associated styles, to a GeoPackage. This process ensures that the data is preserved in a standard format for future use, with the correct styling embedded in the file.
+
+For example, after clipping the CLC data, you may want to store the resulting subset along with the style information in a GeoPackage file (new or existing one). The `save_to` function is used to write both the CLC data and its styles to the specified GeoPackage destination.
+
+The following example demonstrates how to save the clipped CLC data and its styles to a new GeoPackage:
+
+```{r example-4}
+# Define the output GeoPackage file
+output_gpkg <- tempfile(fileext = ".gpkg")
+
+# Capture output to suppress messages (optional)
+sink(tempfile())
+
+# Save the clipped data and its styles to the new GeoPackage
+clc_clipped |> 
+  save_to(output_gpkg)
+
+# Stop capturing output
+sink()
+```
+
+This workflow saves the clipped CLC data to a new GeoPackage file, ensuring that both the data and its associated styles are properly stored. You can later access the file, preserving the full context of the original dataset, including the applied styles.
+
+In addition to saving the clipped data to a GeoPackage, you can also save it to a PostGIS database. The following example demonstrates how you would save the clipped CLC data to a PostGIS database. However, this example is not executed here to avoid creating external dependencies on a PostGIS database connection. 
+
+```{r example-4-2, eval=FALSE}
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'exampledb2',
+  host = 'localhost',
+  port = '5432',
+  user = 'user',
+  password = 'password'
+)
+
+clc_clipped |> 
+  save_to(conn)
+```
+
+The same `save_to` function can be used with a PostGIS connection, just like with GeoPackage, enabling flexibility in where the data is stored.
+
+# Independent Functions
+
+
+# Conclusions
+
+The functions of the `clc` package make it easier to work with CLC data and styles. 
+
+
+We can obtain objects of class `SpatRaster` and work with the `terra` package or we can store the result on GeoPackage or PostGIS formats to process it by other means.

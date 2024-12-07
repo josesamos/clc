@@ -37,37 +37,43 @@ This is a basic example which shows you how to solve a common problem.
 
 Read the CLC data from the GeoPackage and visualize the CLC data with styles.
 
-```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
+```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
 library(clc)
 
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 
 clc_data <- clc(source = source_gpkg, layer_name = "clc")
 
-clc_data |> plot_clc()
+clc_data |> 
+  plot_clc()
 ```
 
 
 Read the clipping layer (region of interest), clip the CLC data to the region of interest and visualize the clipped CLC data with styles.
 
 
-```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
+```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
 region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
 
-clc_clipped <- clc_data |> cut_to_extent(region)
+clc_clipped <- clc_data |> 
+  cut_to_extent(region)
 
-clc_clipped |> plot_clc()
+clc_clipped |> 
+  plot_clc()
 ```
 
 Convert the clipped CLC data to raster format and visualize it with styles.
 
-```{r example-3, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
+```{r example-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
 raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
 base_raster <- terra::rast(raster_path)
-clc_raster <- clc_clipped |> as_raster(base_raster = base_raster)
 
-clc_raster |> plot_clc()
+clc_raster <- clc_clipped |> 
+  as_raster(base_raster = base_raster)
+
+clc_raster |> 
+  plot_clc()
 ```
 
 Save the clipped data and its styles to a new GeoPackage.
@@ -76,7 +82,10 @@ Save the clipped data and its styles to a new GeoPackage.
 output_gpkg <- tempfile(fileext = ".gpkg")
 
 sink(tempfile())
-clc_clipped |> save_to(output_gpkg)
+
+clc_clipped |> 
+  save_to(output_gpkg)
+
 sink()
 ```
 
@@ -84,7 +93,7 @@ Get a raster in `terra::SpatRaster` format to store it in a file, for example.
 
 ```{r example-5}
 clc_r <- clc_raster |>
-         get_raster()
+  get_raster()
 
 output_tif <- tempfile(fileext = ".tif")
 

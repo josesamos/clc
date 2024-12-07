@@ -43,10 +43,11 @@ source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 
 clc_data <- clc(source = source_gpkg, layer_name = "clc")
 
-clc_data |> plot_clc()
+clc_data |> 
+  plot_clc()
 ```
 
-<img src="man/figures/README-example-1-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-1-1.png" width="100%" style="display: block; margin: auto;" />
 
 Read the clipping layer (region of interest), clip the CLC data to the
 region of interest and visualize the clipped CLC data with styles.
@@ -54,12 +55,14 @@ region of interest and visualize the clipped CLC data with styles.
 ``` r
 region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
 
-clc_clipped <- clc_data |> cut_to_extent(region)
+clc_clipped <- clc_data |> 
+  cut_to_extent(region)
 
-clc_clipped |> plot_clc()
+clc_clipped |> 
+  plot_clc()
 ```
 
-<img src="man/figures/README-example-2-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-2-1.png" width="100%" style="display: block; margin: auto;" />
 
 Convert the clipped CLC data to raster format and visualize it with
 styles.
@@ -68,12 +71,15 @@ styles.
 raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
 base_raster <- terra::rast(raster_path)
-clc_raster <- clc_clipped |> as_raster(base_raster = base_raster)
 
-clc_raster |> plot_clc()
+clc_raster <- clc_clipped |> 
+  as_raster(base_raster = base_raster)
+
+clc_raster |> 
+  plot_clc()
 ```
 
-<img src="man/figures/README-example-3-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-3-1.png" width="100%" style="display: block; margin: auto;" />
 
 Save the clipped data and its styles to a new GeoPackage.
 
@@ -81,7 +87,10 @@ Save the clipped data and its styles to a new GeoPackage.
 output_gpkg <- tempfile(fileext = ".gpkg")
 
 sink(tempfile())
-clc_clipped |> save_to(output_gpkg)
+
+clc_clipped |> 
+  save_to(output_gpkg)
+
 sink()
 ```
 
@@ -90,7 +99,7 @@ example.
 
 ``` r
 clc_r <- clc_raster |>
-         get_raster()
+  get_raster()
 
 output_tif <- tempfile(fileext = ".tif")
 

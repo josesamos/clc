@@ -1,6 +1,6 @@
 Type: Package
 Package: clc
-Title: Tools for Working with CORINE Land Cover (CLC) Data and Styles
+Title: Tools for Working with CORINE Land Cover Data and Styles
 Version: 0.1.0
 Authors@R: c(
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre"),
