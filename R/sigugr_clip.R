@@ -14,7 +14,6 @@
 #' @seealso \code{\link{clip_multipoligon}}
 #'
 #' @examples
-#'
 #' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 #'
 #' clc <- sf::st_read(gpkg_path, layer = "clc")
@@ -64,7 +63,6 @@ clip_vector <- function(vector, polygon) {
 #' @seealso \code{\link{clip_vector}}
 #'
 #' @examples
-#'
 #' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 #'
 #' clc <- sf::st_read(gpkg_path, layer = "clc")

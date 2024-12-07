@@ -29,7 +29,6 @@ This solution is inspired by a discussion on handling WKB type errors in R:
 <https://gis.stackexchange.com/questions/389814/r-st-centroid-geos-error-unknown-wkb-type-12>.
 }
 \examples{
-
 gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
 clc <- sf::st_read(gpkg_path, layer = "clc")

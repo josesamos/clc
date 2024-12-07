@@ -56,7 +56,6 @@ copy_styles_layer_names(
 
 DBI::dbDisconnect(conn)
 }
-
 }
 \seealso{
 \code{\link{copy_styles_layer}}

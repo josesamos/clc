@@ -26,7 +26,11 @@ This function extracts the color values associated with a CLC style definition.
 It returns a character vector containing the `color` field from the CLC style definition.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
+
+levels <- clo |>
+  get_colors()
 
 }
 \seealso{

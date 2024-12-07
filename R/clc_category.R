@@ -48,7 +48,11 @@ clc_category <- function(style, values = NULL) {
 #' @family CLC class functions
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
+#'
+#' levels <- clo |>
+#'   get_levels()
 #'
 #' @export
 get_levels <- function(clo)
@@ -79,7 +83,11 @@ get_levels.clc_category <- function(clo) {
 #' @family CLC class functions
 #'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
+#'
+#' levels <- clo |>
+#'   get_colors()
 #'
 #' @export
 get_colors <- function(clo)

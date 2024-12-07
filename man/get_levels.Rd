@@ -30,7 +30,11 @@ It returns a data frame that contains the fields `id`, `description`, and `color
 from the CLC style definition.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
+
+levels <- clo |>
+  get_levels()
 
 }
 \seealso{

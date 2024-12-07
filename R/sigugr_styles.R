@@ -25,7 +25,6 @@
 #'
 #' copy_styles_layer(from = source_gpkg, to = dest_gpkg)
 #' }
-#'
 #' @export
 copy_styles_layer <- function(from, to) {
   style <- read_style_from_source(from)
@@ -81,7 +80,6 @@ copy_styles_layer <- function(from, to) {
 #'
 #' DBI::dbDisconnect(conn)
 #' }
-#'
 #' @export
 copy_styles_layer_names <- function(from, to, layers, database, schema = 'public') {
   style <- read_style_from_source(from)

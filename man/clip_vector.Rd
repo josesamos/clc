@@ -21,7 +21,6 @@ It handles CRS (Coordinate Reference System) transformations automatically if ne
 ensuring the output is in the same CRS as the input polygon.
 }
 \examples{
-
 gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
 clc <- sf::st_read(gpkg_path, layer = "clc")
