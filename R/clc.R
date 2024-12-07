@@ -301,7 +301,7 @@ copy_to.clc <- function(clo,
                         schema = 'public',
                         layers = NULL) {
   assign_styles_to_layers(clo$style, to, database, schema, layers)
-  clo
+  invisible(clo)
 }
 
 

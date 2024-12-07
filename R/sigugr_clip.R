@@ -11,7 +11,6 @@
 #' The output will be in the CRS of the `polygon`, and it will retain all attributes of the input `vector`.
 #'
 #' @family independent functions
-#' @seealso \code{\link{clip_multipoligon}}
 #'
 #' @examples
 #' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -61,7 +60,6 @@ clip_vector <- function(vector, polygon) {
 #' @return A `sf` vector layer with the clipped geometries.
 #'
 #' @family independent functions
-#' @seealso \code{\link{clip_vector}}
 #'
 #' @examples
 #' gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")

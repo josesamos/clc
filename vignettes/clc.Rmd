@@ -32,7 +32,7 @@ CLC is available in both vector and raster formats:
 
 - Raster Format: Provides land cover data in a gridded format with cell values corresponding to CLC codes.
 
-Each CLC code is associated with a specific *color* and *description* as part of its classification system. Style files (e.g., QGIS QML or SLD files) are often included with CLC datasets, enabling standardized visualization of land cover classes for accurate and intuitive map representation. In GeoPackage and PostGIS formats, styles are often stored in a dedicated table, which contains metadata associated with each layer.
+Each CLC *code* is associated with a specific *color* and *description* as part of its classification system. Style files (e.g., QGIS QML or SLD files) are often included with CLC datasets, enabling standardized visualization of land cover classes for accurate and intuitive map representation. In GeoPackage and PostGIS formats, styles are stored in a dedicated table, which contains metadata associated with each layer.
  
 ## The `clc` package
 
@@ -44,40 +44,36 @@ The goal of the `clc` package is to support operations with CLC data, addressing
 
 1. It handles CLC data in both GeoPackage and PostGIS formats, supporting them as sources and destinations.
 
-The package is organized into two families of functions:  
-
-1. Class-Based Operations: These functions rely on the **`clc` class**, enabling users to perform a full range of operations, including:  
-   - Reading CLC data from GeoPackage or PostGIS.  
-   - Visualizing CLC vector data with its associated styles.  
-   - Clipping CLC data to specific regions, with its styles.  
-   - Converting CLC data to raster format.  
-   - Visualizing CLC raster data with its associated styles.  
-   - Exporting CLC data and styles to GeoPackage or PostGIS.  
-
-2. Independent Functions: A minimal set of standalone functions designed for specific tasks. These functions implement essential features for directly working with CLC data, such as retrieving or saving styles, without requiring the use of the `clc` class.  
-
-By offering both comprehensive and lightweight approaches, the `clc` package meets the needs of users seeking advanced workflows or those requiring straightforward solutions for handling CLC data.
+The `clc` package includes the `clc` class, designed as a comprehensive toolkit for managing and processing CLC data, enabling users to perform a wide range of geospatial operations efficiently.
 
 
 ## Document Structure 
 
-Apart from this introduction, the document begins by presenting the data available within the package. It then demonstrates the functionalities of the `clc` class through a complete usage example. Following this, the document showcases the independent functions and their application to the same example. Finally, it concludes with a summary of the functionalities and their benefits.
+Apart from this introduction, the document begins by presenting the data available within the package. It then demonstrates the functionalities of the `clc` class through a complete usage example. Finally, it concludes with a summary of the functionalities and their benefits.
 
 # Data Included in the Package
 
-The package includes the following datasets to support workflows with CORINE Land Cover (CLC):  
+The package includes the following datasets to support workflows with CLC data:  
 
 - `clc.gpkg`, a GeoPackage file containing the following vector layers:  
   - `clc`: A fragment of CLC data for a region in Granada, Spain, stored in vector format. This layer includes the associated style definitions, which are stored within the same GeoPackage. The data was sourced from the [*CNIG (Centro Nacional de Información Geográfica)*](https://www.cnig.es/).  
   - `lanjaron`: A polygonal vector layer representing the boundaries of the municipality of Lanjarón, located in Granada, Spain. This data was sourced from the [*DERA (Datos Espaciales de Referencia de Andalucía)*](https://www.juntadeandalucia.es/institutodeestadisticaycartografia/dega/datos-espaciales-de-referencia-de-andalucia-dera).  
 
-- `mdt.tif`, a raster file containing a Digital Terrain Model (DTM) for the same region as the `clc` and `lanjaron` layers. This data was also obtained from the *CNIG*.  
+- `mdt.tif`, a raster file containing a Digital Terrain Model (DTM) for the same region as the `clc` and `lanjaron` layers. This data was also obtained from the *CNIG*. The DTM data is not actually used; only its format is needed as a template to create a base raster. 
 
-These datasets provide a foundational base for exploring the functionalities of the package, including vector and raster data processing, visualization, and analysis.  
-
+These datasets provide a foundational base for exploring the functionalities of the package, including vector and raster data processing and visualization.  
 
 # Class-Based Operations
 
+Key features of the `clc` class include the ability to read CLC datasets directly from widely used geospatial databases, such as GeoPackage or PostGIS. 
+
+The class also facilitates advanced visualization of CLC vector data, complete with associated styles, to accurately represent land cover classifications. Users can further refine datasets by clipping CLC data to specific regions of interest while preserving style consistency, enabling localized analyses.
+
+In addition to vector processing, the `clc` class supports the conversion of CLC vector data into raster formats, expanding its utility for raster-based analyses. Once rasterized, users can visualize CLC raster data with styles that mirror the original vector representation, maintaining interpretability.
+
+To support data sharing and further processing, the `clc` class includes functionality for exporting both CLC data and their associated styles back to GeoPackage or PostGIS, ensuring data integrity and compatibility with external systems.
+
+The following provides a detailed example illustrating the functionalities described earlier.
 
 ## Create an object of class `clc`
 
@@ -98,7 +94,7 @@ We can include a parameter called `field`, which is optional. It should only be 
 
 The function returns an object of class `clc`, which can then be used for further analysis and visualization.
 
-In this case, the following code would achieve the same result, assuming the database contains the same layer and styles stored. However, it is not executed here because a remote database is required, which is not suitable for the example provided within the package.
+In this case, the following code would achieve the same result, assuming the database contains the same layer and styles stored. 
 
 ```{r setup2, eval=FALSE}
 library(clc)
@@ -113,6 +109,8 @@ conn <- RPostgres::dbConnect(
 )
 
 clc_data <- clc(source = conn, layer_name = "clc")
+
+DBI::dbDisconnect(conn)
 ```
 
 This example demonstrates how to use a PostGIS database connection instead of a GeoPackage file. However, since the example is designed to run within the package and without external dependencies like a live database, we use the local `clc.gpkg` file instead.
@@ -168,8 +166,6 @@ In this section, we focus on the process of clipping CLC data to a region of int
 
 First, we read the clipping layer (the region of interest) from the source GeoPackage, which defines the geographical boundaries for the clip. After loading the region, we use the `cut_to_extent` function to clip the CLC data to this region.
 
-The clipping process works by aligning the CLC data with the boundaries of the specified region, ensuring that only the relevant portion of the CLC data is retained.
-
 Once the data is clipped, it is visualized using the `plot_clc` function, which applies the appropriate styling and provides a clear representation of the clipped CLC data.
 
 Here’s an example of how to clip the CLC data to a region and visualize the result:
@@ -190,7 +186,7 @@ clc_clipped |>
 
 This workflow demonstrates how the `cut_to_extent` function can be used to subset CLC data by a specific region and visualize the clipped data, all while retaining the correct styling.
 
-## Saving CLC Data and Styles to a GeoPackage
+## Saving CLC Data and Styles
 
 In this section, we focus on how to save the CLC data, along with its associated styles, to a GeoPackage. This process ensures that the data is preserved in a standard format for future use, with the correct styling embedded in the file.
 
@@ -215,7 +211,7 @@ sink()
 
 This workflow saves the clipped CLC data to a new GeoPackage file, ensuring that both the data and its associated styles are properly stored. You can later access the file, preserving the full context of the original dataset, including the applied styles.
 
-In addition to saving the clipped data to a GeoPackage, you can also save it to a PostGIS database. The following example demonstrates how you would save the clipped CLC data to a PostGIS database. However, this example is not executed here to avoid creating external dependencies on a PostGIS database connection. 
+In addition to saving the clipped data to a GeoPackage, you can also save it to a PostGIS database. The following example demonstrates it. However, this example is not executed here to avoid creating external dependencies on a database connection. 
 
 ```{r example-4-2, eval=FALSE}
 conn <- RPostgres::dbConnect(
@@ -228,17 +224,116 @@ conn <- RPostgres::dbConnect(
 )
 
 clc_clipped |> 
-  save_to(conn)
+  save_to(conn, 'exampledb2')
+
+DBI::dbDisconnect(conn)
 ```
 
 The same `save_to` function can be used with a PostGIS connection, just like with GeoPackage, enabling flexibility in where the data is stored.
 
-# Independent Functions
+
+## Copying Styles
+
+The `copy_to` function in the `clc` package enables you to copy only the style definitions from one source and apply them to a specified layer or all layers in the destination. If no specific layer is indicated, the style is applied to all layers in the destination. 
+
+Below is an example demonstrating how to use `copy_to`:
+
+```{r example-4-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+# Create a new GeoPackage without style definition
+destination_gpkg <- tempfile(fileext = ".gpkg")
+clc_layer <- sf::st_read(source_gpkg, layer = "clc", quiet = TRUE)
+sf::st_write(
+  clc_layer,
+  destination_gpkg,
+  layer = "clc2",
+  delete_layer = TRUE,
+  quiet = TRUE
+)
+
+# Copy the style to the new GeoPackage
+clc_clipped |>
+  copy_to(to = destination_gpkg, layers = "clc2")
+
+# Create a clc object from the new GeoPackage and view it
+clc_data2 <- clc(source = destination_gpkg, layer_name = "clc2")
+
+clc_data2 |>
+  plot_clc()
+```
+
+
+This workflow demonstrates the flexibility of the `clc` package in managing styles across multiple GeoPackages. The `copy_to` function can also be used with a PostGIS database as the destination.
+
+
+## Converting CLC Data to Raster Format
+
+The `as_raster` function in the `clc` package provides an efficient way to convert vector-based CLC data into a raster format. This is particularly useful when working with raster-based analysis workflows
+
+The function allows specifying a base raster for consistent alignment and resolution with existing raster data. If no base raster is provided, a custom resolution can be specified to generate the raster grid. 
+
+The raster output retains the CLC categories, ensuring that the data remains consistent with its original classification.
+
+Below are two examples demonstrating the use of `as_raster`:
+
+- If a base raster is available, you can use it to define the extent, resolution, and coordinate reference system (CRS) for the output raster.
+
+```{r example-3}
+raster_path <- system.file("extdata", "mdt.tif", package = "clc")
+base_raster <- terra::rast(raster_path)
+
+clc_raster1 <- clc_clipped |> 
+  as_raster(base_raster = base_raster)
+```
+
+- When no base raster is available, you can specify a resolution to define the raster grid.
+
+```{r example-3-2}
+clc_raster2 <- clc_clipped |> 
+  as_raster(resolution = 50)
+```
+
+These examples demonstrate how `as_raster` streamlines the conversion process, making it easier to integrate vector-based CLC data into raster workflows.
+
+
+## Applications of the Generated Raster
+
+After converting CLC data to raster format using the `as_raster` function, the raster can be used for various applications. Below, we demonstrate two common use cases.
+
+These examples illustrate the versatility of the raster output, making it suitable for visualization, sharing, or extended GIS workflows.
+
+### Visualizing the Raster Data
+
+For raster visualization, the `terra::plot` function is used with the color scheme configured (using the `col` parameter) to match the CLC styles. The `plot_clc` function allows customization of all other parameters supported by `terra::plot`.
+
+```{r example-3-3, fig.width=10, fig.height=7, dpi=300, out.width="100%", fig.align='center'}
+clc_raster1 |> 
+  plot_clc()
+```
+
+This renders the raster using the colors and descriptions associated with the original CLC styles, ensuring a clear and accurate representation of the data.
+
+### Getting the Raster 
+
+The `get_raster` function extracts a `terra::SpatRaster` object for further customization, analysis, or storage.
+
+Once the raster is obtained, it can be exported to a file format such as GeoTIFF. This is particularly useful for sharing the data or for further processing in GIS software.
+
+```{r example-5}
+clc_r <- clc_raster1 |>
+  get_raster()
+
+output_tif <- tempfile(fileext = ".tif")
+terra::writeRaster(clc_r,
+                   output_tif,
+                   filetype = "GTiff",
+                   overwrite = TRUE)
+```
+
+This workflow creates a GeoTIFF file containing the rasterized CLC data, making it compatible with most GIS platforms and software.
 
 
 # Conclusions
 
-The functions of the `clc` package make it easier to work with CLC data and styles. 
+The `clc` package provides an efficient and user-friendly framework for managing and processing CLC data. By automating key operations such as style handling, clipping, rasterization, and data export, it simplifies workflows and enhances interoperability between geospatial formats like GeoPackage and PostGIS. 
 
-
-We can obtain objects of class `SpatRaster` and work with the `terra` package or we can store the result on GeoPackage or PostGIS formats to process it by other means.
+Through its flexible and well-documented functionality, the package addresses the complexities associated with CLC data, ensuring accurate visualization and seamless integration into GIS workflows. The detailed examples and workflows presented demonstrate its potential to streamline CLC data management, making it a valuable tool for environmental analysis, spatial planning, and research applications.
