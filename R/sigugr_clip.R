@@ -21,7 +21,8 @@
 #'
 #' clc_clipped <- clip_vector(clc, lanjaron)
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 clip_vector <- function(vector, polygon) {
   crs_polygon <- sf::st_crs(polygon)
   if (sf::st_crs(vector) != crs_polygon) {
