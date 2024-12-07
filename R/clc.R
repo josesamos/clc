@@ -233,7 +233,7 @@ save_to.clc <- function(clo,
   ))
 
   assign_styles_to_layers(clo$style, to, database, schema, layers = layer_name)
-  clo
+  invisible(clo)
 }
 
 
@@ -352,6 +352,12 @@ plot_clc.clc <- function(clo, ...) {
       labels = stats::setNames(levels$description, levels$id),
       name = ""
     ) +
+    ggplot2::theme(
+      legend.position = "right",
+      legend.key.height = ggplot2::unit(2, "cm"),
+      legend.title = ggplot2::element_text(size = 12),
+      legend.text = ggplot2::element_text(size = 10)
+    ) +
     ggplot2::theme_minimal()
 }
 
@@ -384,6 +390,12 @@ plot_clc.clc <- function(clo, ...) {
 #'     values = stats::setNames(levels$color, levels$id),
 #'     labels = stats::setNames(levels$description, levels$id),
 #'     name = ""
+#'   ) +
+#'   ggplot2::theme(
+#'     legend.position = "right",
+#'     legend.key.height = ggplot2::unit(2, "cm"),
+#'     legend.title = ggplot2::element_text(size = 12),
+#'     legend.text = ggplot2::element_text(size = 10)
 #'   ) +
 #'   ggplot2::theme_minimal()
 #'

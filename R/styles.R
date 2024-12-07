@@ -150,12 +150,14 @@ combine_styles <- function(existing_styles,
   if ('id' %in% names(combined_styles)) {
     combined_styles$id <- 1:nrow(combined_styles)
   }
-  sf::st_write(
-    obj = combined_styles,
-    dsn = to,
-    layer = "layer_styles",
-    append = FALSE,
-    quiet = TRUE
+  suppressMessages(
+    sf::st_write(
+      obj = combined_styles,
+      dsn = to,
+      layer = "layer_styles",
+      append = FALSE,
+      quiet = TRUE
+    )
   )
   combined_styles
 }

@@ -36,6 +36,12 @@ p <- p +
     labels = stats::setNames(levels$description, levels$id),
     name = ""
   ) +
+  ggplot2::theme(
+    legend.position = "right",
+    legend.key.height = ggplot2::unit(2, "cm"),
+    legend.title = ggplot2::element_text(size = 12),
+    legend.text = ggplot2::element_text(size = 10)
+  ) +
   ggplot2::theme_minimal()
 
 temp_file <- tempfile(fileext = ".png")

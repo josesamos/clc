@@ -20,7 +20,18 @@ knitr::opts_chunk$set(
 
 *CORINE Land Cover* (*CLC*) is a European land use and land cover classification system that provides standardized geospatial data on land cover categories. It includes an associated style definition, typically stored in formats like GeoPackage, which links land cover codes to descriptive labels and visualization attributes (e.g., colors) for consistent representation across GIS platforms.
 
-The goal of `clc` is to support operations with CORINE Land Cover data, addressing the challenges and specificities it presents, particularly those related to its associated styles.
+The goal of `clc` is to support operations with CLC data, addressing the challenges and specificities it presents, particularly those related to its associated styles. Its main characteristics are the following:
+
+1. **Standardized Handling of CLC Styles**  
+   CLC data includes predefined categories and associated styles, which must be correctly interpreted and applied for consistent visualization. The `clc` package automates the extraction, application, and preservation of styles across workflows.
+
+2. **Streamlined Vector and Raster Workflows**  
+   Tasks such as reading CLC vector data, applying styles, clipping layers, and converting vector data to raster format involve multiple steps. The `clc` package provides simplified, high-level functions to handle these tasks efficiently.
+
+3. **Support for Multiple Data Sources and Targets**  
+   The `clc` package handles CLC data in both GeoPackage and PostGIS formats, supporting them as sources and destinations.
+
+The `clc` package simplifies workflows for common tasks, such as reading a CLC vector file, visualizing it with its style, clipping the data to a region, saving the output with its style, and converting it to raster format, supporting CLC data in both GeoPackage and PostGIS as sources and destinations.
 
 ## Installation
 
@@ -33,25 +44,63 @@ pak::pak("josesamos/clc")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to solve a common problem.
 
-```{r example}
+Read the CLC data from the GeoPackage and visualize the CLC data with styles.
+
+```{r example-1, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
 library(clc)
-## basic example code
+
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+
+clc_data <- clc(source = source_gpkg, layer_name = "clc")
+
+clc_data |> plot_clc()
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
-summary(cars)
+Read the clipping layer (region of interest), clip the CLC data to the region of interest and visualize the clipped CLC data with styles.
+
+
+```{r example-2, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
+region <- sf::st_read(source_gpkg, layer = "lanjaron", quiet = TRUE)
+
+clc_clipped <- clc_data |> cut_to_extent(region)
+
+clc_clipped |> plot_clc()
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+Convert the clipped CLC data to raster format and visualize the raster CLC data with styles.
 
-You can also embed plots, for example:
+```{r example-3, fig.width=10, fig.height=7, dpi=300, out.width="80%", fig.align='center'}
+raster_path <- system.file("extdata", "mdt.tif", package = "clc")
 
-```{r pressure, echo = FALSE}
-# plot(pressure)
+base_raster <- terra::rast(raster_path)
+clc_raster <- clc_clipped |> as_raster(base_raster = base_raster)
+
+clc_raster |> plot_clc()
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+Save the clipped data and its styles to a new GeoPackage.
+
+```{r example-4}
+output_gpkg <- tempfile(fileext = ".gpkg")
+
+sink(tempfile())
+clc_clipped |> save_to(output_gpkg)
+sink()
+```
+
+Get a raster in `terra::SpatRaster` format to store it in a file, for example.
+
+```{r example-5}
+clc_r <- clc_raster |>
+         get_raster()
+
+output_tif <- tempfile(fileext = ".tif")
+
+terra::writeRaster(clc_r,
+                   output_tif,
+                   filetype = "GTiff",
+                   overwrite = TRUE)
+```
