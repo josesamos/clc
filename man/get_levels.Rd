@@ -33,3 +33,16 @@ from the CLC style definition.
 #
 
 }
+\seealso{
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{clc}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_raster}()},
+\code{\link{plot_clc}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

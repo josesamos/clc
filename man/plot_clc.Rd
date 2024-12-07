@@ -4,7 +4,7 @@
 \alias{plot_clc}
 \alias{plot_clc.clc}
 \alias{plot_clc.clc_raster}
-\title{Plot CLC Data}
+\title{Plot CLC Layer}
 \usage{
 plot_clc(clo, ...)
 
@@ -14,21 +14,24 @@ plot_clc(clo, ...)
 }
 \arguments{
 \item{clo}{An object containing CLC data. This must be an instance of a supported class, such as:
-- A vectorial data object (e.g., `clc` object).
-- A raster data object (e.g., `clc_raster`).}
+- A vectorial CLC data object (e.g., `clc` object).
+- A raster CLC data object (e.g., `clc_raster`).}
 
-\item{...}{Additional arguments passed to the specific method for the object's class.}
+\item{...}{Additional arguments passed to the `terra::plot` function.}
 }
 \value{
-A plot displaying the CLC data.
+An object containing CLC data.
 }
 \description{
-Plot CLC data stored in objects of supported classes. The function
-adapts the plot based on the class of the input data (vectorial or raster format).
+Plot CLC data stored in objects of supported classes. The function adapts the plot
+based on the class of the input data (vectorial or raster format).
 }
 \details{
-It allows users to plot objects with a simplified interface, while allowing additional arguments
-to be passed to `plot` using `...`.
+For the raster version, the `terra::plot` function is used with the `col` parameter
+configured, while all other parameters supported by the function can also be defined (using `...`).
+
+For the vector version, `ggplot2::ggplot` is used, and by using the `prepare_plot` function
+instead of this one (`plot_clc`), further customization can be applied as needed.
 }
 \examples{
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -43,3 +46,18 @@ clo |>
 dev.off()
 
 }
+\seealso{
+\code{\link{prepare_plot}}
+
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{clc}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{get_raster}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

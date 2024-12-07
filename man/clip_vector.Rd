@@ -22,7 +22,6 @@ ensuring the output is in the same CRS as the input polygon.
 }
 \examples{
 
-
 gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
 
 clc <- sf::st_read(gpkg_path, layer = "clc")
@@ -31,3 +30,13 @@ lanjaron <- sf::st_read(gpkg_path, layer = "lanjaron")
 clc_clipped <- clip_vector(clc, lanjaron)
 
 }
+\seealso{
+\code{\link{clip_multipoligon}}
+
+Other independent functions: 
+\code{\link{clip_multipoligon}()},
+\code{\link{copy_styles_layer}()},
+\code{\link{copy_styles_layer_names}()},
+\code{\link{get_layer_categories}()}
+}
+\concept{independent functions}

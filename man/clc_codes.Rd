@@ -5,7 +5,7 @@
 \alias{clc_codes}
 \title{CLC Codes}
 \format{
-A vector.
+A vector of strings.
 }
 \usage{
 clc_codes

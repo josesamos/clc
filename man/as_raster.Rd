@@ -14,15 +14,14 @@ as_raster(clo, base_raster, resolution)
 
 \item{base_raster}{(Optional) A raster object to use as the base for rasterization.}
 
-\item{resolution}{(Optional) Numeric resolution to define the raster grid if `base_raster`
-is not provided.}
+\item{resolution}{(Optional) Numeric resolution to define the raster grid.}
 }
 \value{
 An object of class `clc_raster`.
 }
 \description{
-Returns an object of class `clc_raster` that contains a `terra::SpatRaster` raster object
-representing the converted vector layer into raster format.
+Returns an object of class `clc_raster` that contains a `terra::SpatRaster` raster
+object representing the converted vector layer into raster format.
 }
 \details{
 The function requires either `base_raster` or `resolution` to be provided.
@@ -44,3 +43,16 @@ r <- clo |>
      as_raster(resolution = 50)
 
 }
+\seealso{
+Other CLC class functions: 
+\code{\link{clc}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{get_raster}()},
+\code{\link{plot_clc}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

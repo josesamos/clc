@@ -19,6 +19,26 @@ A `terra::SpatRaster` object.
 Retrieve a raster representation (`terra::SpatRaster`) from a CLC object.
 }
 \examples{
-#
+source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+clo <- clc(source = source_gpkg, layer_name = "clc")
+
+r <- clo |>
+     as_raster(resolution = 50)
+
+clc_r <- r |>
+         get_raster()
 
 }
+\seealso{
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{clc}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{plot_clc}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

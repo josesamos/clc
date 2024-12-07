@@ -13,10 +13,9 @@
 #' @return An object of class `clc_raster`.
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
-#' @examples
-#' #
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 clc_raster <- function(vector_layer,
                        field,
                        category,
@@ -71,8 +70,17 @@ plot_clc.clc_raster <- function(clo, ...) {
 #'
 #' @return A `terra::SpatRaster` object.
 #'
+#' @family CLC class functions
+#'
 #' @examples
-#' #
+#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+#' clo <- clc(source = source_gpkg, layer_name = "clc")
+#'
+#' r <- clo |>
+#'      as_raster(resolution = 50)
+#'
+#' clc_r <- r |>
+#'          get_raster()
 #'
 #' @export
 get_raster <- function(clo)

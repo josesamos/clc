@@ -7,8 +7,9 @@
 clc(source, layer_name, field = NULL)
 }
 \arguments{
-\item{source}{The source of the vector layer. Can be a file path to a GeoPackage or
-a PostGIS connection.}
+\item{source}{The source of the vector layer. This can be:
+- A string representing the path to a GeoPackage file.
+- A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].}
 
 \item{layer_name}{The name of the layer in the source to be used.}
 
@@ -45,3 +46,16 @@ conn <- RPostgres::dbConnect(
 clo <- clc(source = conn, layer_name = "clc")
 }
 }
+\seealso{
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{get_raster}()},
+\code{\link{plot_clc}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

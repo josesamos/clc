@@ -3,7 +3,7 @@
 \name{prepare_plot}
 \alias{prepare_plot}
 \alias{prepare_plot.clc}
-\title{Prepare a Plot for CLC Data}
+\title{Prepare a Plot for CLC Vectorial Data}
 \usage{
 prepare_plot(clo)
 
@@ -16,8 +16,8 @@ prepare_plot(clo)
 A `ggplot2` object ready for rendering.
 }
 \description{
-Generates a `ggplot2` object to visualize CLC data. The function
-processes the data stored in a `clc` object, ensuring that the specified field is
+Generates a `ggplot2` object to visualize CLC Vectorial data. The function
+processes the data stored in a `clc` object, ensuring that the codes field is
 mapped correctly to the categories and their associated styles.
 }
 \examples{
@@ -46,3 +46,18 @@ p
 dev.off()
 
 }
+\seealso{
+\code{\link{plot_clc}}
+
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{clc}()},
+\code{\link{copy_to}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{get_raster}()},
+\code{\link{plot_clc}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

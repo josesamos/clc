@@ -15,13 +15,16 @@
 #'
 #' The layer must have a style defined in the source.
 #'
-#' @param source The source of the vector layer. Can be a file path to a GeoPackage or
-#'   a PostGIS connection.
+#' @param source The source of the vector layer. This can be:
+#'   - A string representing the path to a GeoPackage file.
+#'   - A `DBI` database connection object to a PostGIS database, created using [RPostgres::dbConnect()].
 #' @param layer_name The name of the layer in the source to be used.
 #' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
 #'   the function will attempt to locate the column containing the CLC codes.
 #'
 #' @return An object of class `clc`.
+#'
+#' @family CLC class functions
 #'
 #' @examples
 #' # ex1
@@ -57,10 +60,8 @@ clc <- function(source, layer_name, field = NULL) {
 #'
 #' @param layer A vector layer in `sf` format.
 #' @param style A data frame containing a QGIS QML style in the column `styleQML`.
-#' The first entry is used for extraction.
 #' @param layer_name The name of the layer in the source to be used.
-#' @param field (Optional) A string, the layer field that contains CLC codes. If NULL,
-#'   the function will attempt to locate the column containing the CLC codes.
+#' @param field A string, the layer field that contains CLC codes.
 #'
 #' @return An object of class `clc`.
 #'
@@ -94,6 +95,8 @@ clc_new <- function(layer, style, layer_name, field) {
 #'
 #' @return A `clc` object.
 #'
+#' @family CLC class functions
+#'
 #' @examples
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
 #' clo <- clc(source = source_gpkg, layer_name = "clc")
@@ -120,15 +123,16 @@ cut_to_extent.clc <- function(clo, polygon) {
 
 #' Convert a `clc` Object to Raster Format
 #'
-#' Returns an object of class `clc_raster` that contains a `terra::SpatRaster` raster object
-#' representing the converted vector layer into raster format.
+#' Returns an object of class `clc_raster` that contains a `terra::SpatRaster` raster
+#' object representing the converted vector layer into raster format.
 #'
 #' @param clo A `clc` object.
 #' @param base_raster (Optional) A raster object to use as the base for rasterization.
-#' @param resolution (Optional) Numeric resolution to define the raster grid if `base_raster`
-#'   is not provided.
+#' @param resolution (Optional) Numeric resolution to define the raster grid.
 #'
 #' @return An object of class `clc_raster`.
+#'
+#' @family CLC class functions
 #'
 #' @details The function requires either `base_raster` or `resolution` to be provided.
 #' If both are missing, an error is raised.
@@ -178,6 +182,8 @@ as_raster.clc <- function(clo,
 #'   If `NULL`, the name of the input `layer` is used.
 #'
 #' @return clo A `clc` object.
+#'
+#' @family CLC class functions
 #'
 #' @details The function overwrites the table if it already exists.
 #'
@@ -243,13 +249,13 @@ save_to.clc <- function(clo,
 #' @param database A string, database name, only in case the destination is in PostGIS.
 #' @param schema A string, schema name, only in case the destination is in PostGIS.
 #'   Defaults to `'public'`.
-#' @param layers An optional character vector specifying the names of layers
-#'   in the destination to which the styles should be applied.
-#'   If `NULL` (default), applies the style to all layers.
+#' @param layers An optional character vector specifying the names of layers in the
+#'   destination to which the styles should be applied. If `NULL` (default), applies
+#'   the style to all layers.
 #'
 #' @return clo A `clc` object.
 #'
-#' @details The function overwrites the table if it already exists.
+#' @family CLC class functions
 #'
 #' @examples
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -296,20 +302,26 @@ copy_to.clc <- function(clo,
 }
 
 
-#' Plot CLC Data
+#' Plot CLC Layer
 #'
-#' Plot CLC data stored in objects of supported classes. The function
-#' adapts the plot based on the class of the input data (vectorial or raster format).
+#' Plot CLC data stored in objects of supported classes. The function adapts the plot
+#' based on the class of the input data (vectorial or raster format).
 #'
-#' It allows users to plot objects with a simplified interface, while allowing additional arguments
-#' to be passed to `plot` using `...`.
+#' For the raster version, the `terra::plot` function is used with the `col` parameter
+#' configured, while all other parameters supported by the function can also be defined (using `...`).
+#'
+#' For the vector version, `ggplot2::ggplot` is used, and by using the `prepare_plot` function
+#' instead of this one (`plot_clc`), further customization can be applied as needed.
 #'
 #' @param clo An object containing CLC data. This must be an instance of a supported class, such as:
-#'   - A vectorial data object (e.g., `clc` object).
-#'   - A raster data object (e.g., `clc_raster`).
-#' @param ... Additional arguments passed to the specific method for the object's class.
+#'   - A vectorial CLC data object (e.g., `clc` object).
+#'   - A raster CLC data object (e.g., `clc_raster`).
+#' @param ... Additional arguments passed to the `terra::plot` function.
 #'
-#' @return A plot displaying the CLC data.
+#' @return An object containing CLC data.
+#'
+#' @family CLC class functions
+#' @seealso \code{\link{prepare_plot}}
 #'
 #' @examples
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -334,26 +346,29 @@ plot_clc.clc <- function(clo, ...) {
 
   levels <- clo |> get_levels()
 
-  p <- clo |> prepare_plot() +
+  clo |> prepare_plot() +
     ggplot2::scale_fill_manual(
       values = stats::setNames(levels$color, levels$id),
       labels = stats::setNames(levels$description, levels$id),
       name = ""
     ) +
     ggplot2::theme_minimal()
-  p
+  clo
 }
 
 
-#' Prepare a Plot for CLC Data
+#' Prepare a Plot for CLC Vectorial Data
 #'
-#' Generates a `ggplot2` object to visualize CLC data. The function
-#' processes the data stored in a `clc` object, ensuring that the specified field is
+#' Generates a `ggplot2` object to visualize CLC Vectorial data. The function
+#' processes the data stored in a `clc` object, ensuring that the codes field is
 #' mapped correctly to the categories and their associated styles.
 #'
 #' @param clo A `clc` object.
 #'
 #' @return A `ggplot2` object ready for rendering.
+#'
+#' @family CLC class functions
+#' @seealso \code{\link{plot_clc}}
 #'
 #' @examples
 #' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -427,6 +442,7 @@ get_colors.clc <- function(clo) {
 #' @param vector_layer An `sf` object representing the vector layer.
 #'
 #' @return The name of the column as a character string.
+#'
 #' @keywords internal
 #' @noRd
 find_clc_column <- function(vector_layer) {

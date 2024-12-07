@@ -11,12 +11,8 @@
 #'
 #' @return An object of class `clc_category`.
 #'
-#' @examples
-#'
-#' source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
-#' obj <- clc(source_gpkg, "clc")
-#'
-#' @export
+#' @keywords internal
+#' @noRd
 clc_category <- function(style, values = NULL) {
 
   cat <- extract_categories_and_colors(style)
@@ -49,6 +45,8 @@ clc_category <- function(style, values = NULL) {
 #'   - `description`: A textual description of the category.
 #'   - `color`: The color associated with the category.
 #'
+#' @family CLC class functions
+#'
 #' @examples
 #' #
 #'
@@ -77,6 +75,8 @@ get_levels.clc_category <- function(clo) {
 #' @param clo A `clc_category` object.
 #'
 #' @return A character vector of colors.
+#'
+#' @family CLC class functions
 #'
 #' @examples
 #' #

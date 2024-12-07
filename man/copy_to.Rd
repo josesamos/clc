@@ -21,9 +21,9 @@ copy_to(clo, to, database, schema, layers)
 \item{schema}{A string, schema name, only in case the destination is in PostGIS.
 Defaults to `'public'`.}
 
-\item{layers}{An optional character vector specifying the names of layers
-in the destination to which the styles should be applied.
-If `NULL` (default), applies the style to all layers.}
+\item{layers}{An optional character vector specifying the names of layers in the
+destination to which the styles should be applied. If `NULL` (default), applies
+the style to all layers.}
 }
 \value{
 clo A `clc` object.
@@ -31,9 +31,6 @@ clo A `clc` object.
 \description{
 This function copies a style to the specified layers in a GeoPackage file or
 a PostGIS database. The destination is determined by the `to` argument.
-}
-\details{
-The function overwrites the table if it already exists.
 }
 \examples{
 source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -64,3 +61,16 @@ clo <- clo |>
   copy_to(conn, 'exampledb', layers = 'clc')
 }
 }
+\seealso{
+Other CLC class functions: 
+\code{\link{as_raster}()},
+\code{\link{clc}()},
+\code{\link{cut_to_extent}()},
+\code{\link{get_colors.clc}()},
+\code{\link{get_levels.clc}()},
+\code{\link{get_raster}()},
+\code{\link{plot_clc}()},
+\code{\link{prepare_plot}()},
+\code{\link{save_to}()}
+}
+\concept{CLC class functions}

@@ -41,3 +41,11 @@ categories <- get_layer_categories(from = gpkg_path, r_clc = r_clc)
 }
 
 }
+\seealso{
+Other independent functions: 
+\code{\link{clip_multipoligon}()},
+\code{\link{clip_vector}()},
+\code{\link{copy_styles_layer}()},
+\code{\link{copy_styles_layer_names}()}
+}
+\concept{independent functions}
