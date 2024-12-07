@@ -85,7 +85,7 @@
 <span></span>
 <span><span class="va">clc_data</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-example-1-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-example-1-1.png" alt="CLC example 1, original" width="100%" style="display: block; margin: auto;"></p>
 <p>Read the clipping layer (region of interest), clip the CLC data to the region of interest and visualize the clipped CLC data with styles.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="va">source_gpkg</span>, layer <span class="op">=</span> <span class="st">"lanjaron"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -95,7 +95,7 @@
 <span></span>
 <span><span class="va">clc_clipped</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-example-2-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-example-2-1.png" alt="CLC example 2, clipped" width="100%" style="display: block; margin: auto;"></p>
 <p>Convert the clipped CLC data to raster format and visualize it with styles.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raster_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"mdt.tif"</span>, package <span class="op">=</span> <span class="st">"clc"</span><span class="op">)</span></span>
@@ -107,7 +107,7 @@
 <span></span>
 <span><span class="va">clc_raster</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-example-3-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-example-3-1.png" alt="CLC example 3, raster" width="100%" style="display: block; margin: auto;"></p>
 <p>Save the clipped data and its styles to a new GeoPackage.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output_gpkg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".gpkg"</span><span class="op">)</span></span>

@@ -254,7 +254,7 @@ using the following function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clc_data</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="clc_files/figure-html/example-1-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="clc_files/figure-html/example-1-1.png" alt="CLC example 1, original" width="100%" style="display: block; margin: auto;"></p>
 <p>This command automatically considers the style that was previously
 associated with the <code>clc</code> object. It ensures that the vector
 data is displayed with the appropriate colors and descriptions, as
@@ -297,7 +297,7 @@ flexibility for further customization:</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span></span></code></pre></div>
-<p><img src="clc_files/figure-html/example-1-1-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="clc_files/figure-html/example-1-1-1.png" alt="CLC example 1, original with prepare plot" width="100%" style="display: block; margin: auto;"></p>
 <p>This code customizes the plot by defining the color scale, adding
 labels, and modifying the appearance of the legend. It allows for full
 control over how the data is presented, beyond the default configuration
@@ -331,7 +331,7 @@ visualize the result:</p>
 <span><span class="co"># Visualize the clipped CLC data with its associated style</span></span>
 <span><span class="va">clc_clipped</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="clc_files/figure-html/example-2-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="clc_files/figure-html/example-2-1.png" alt="CLC example 2, clipped" width="100%" style="display: block; margin: auto;"></p>
 <p>This workflow demonstrates how the <code>cut_to_extent</code>
 function can be used to subset CLC data by a specific region and
 visualize the clipped data, all while retaining the correct styling.</p>
@@ -420,7 +420,7 @@ destination.</p>
 <span></span>
 <span><span class="va">clc_data2</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="clc_files/figure-html/example-4-3-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="clc_files/figure-html/example-4-3-1.png" alt="CLC example 3, copying styles" width="100%" style="display: block; margin: auto;"></p>
 <p>This workflow demonstrates the flexibility of the <code>clc</code>
 package in managing styles across multiple GeoPackages. The
 <code>copy_to</code> function can also be used with a PostGIS database
@@ -482,7 +482,7 @@ allows customization of all other parameters supported by
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clc_raster1</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/plot_clc.html">plot_clc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="clc_files/figure-html/example-3-3-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="clc_files/figure-html/example-3-3-1.png" alt="CLC example 4, raster" width="100%" style="display: block; margin: auto;"></p>
 <p>This renders the raster using the colors and descriptions associated
 with the original CLC styles, ensuring a clear and accurate
 representation of the data.</p>
