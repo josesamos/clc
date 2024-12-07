@@ -193,8 +193,11 @@ as_raster.clc <- function(clo,
 #'
 #' # ex1
 #' out_gpkg <- tempfile(fileext = ".gpkg")
+#'
+#' sink(tempfile())
 #' clo <- clo |>
 #'   save_to(out_gpkg)
+#' sink()
 #'
 #' \dontrun{
 #' # ex2

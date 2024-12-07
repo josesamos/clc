@@ -40,8 +40,11 @@ clo <- clc(source = source_gpkg, layer_name = "clc")
 
 # ex1
 out_gpkg <- tempfile(fileext = ".gpkg")
+
+sink(tempfile())
 clo <- clo |>
   save_to(out_gpkg)
+sink()
 
 \dontrun{
 # ex2
