@@ -25,7 +25,8 @@
 #'
 #' copy_styles_layer(from = source_gpkg, to = dest_gpkg)
 #' }
-#' @export
+#' @keywords internal
+#' @noRd
 copy_styles_layer <- function(from, to) {
   style <- read_style_from_source(from)
   assign_styles_to_layers(style, to)
@@ -80,7 +81,8 @@ copy_styles_layer <- function(from, to) {
 #'
 #' DBI::dbDisconnect(conn)
 #' }
-#' @export
+#' @keywords internal
+#' @noRd
 copy_styles_layer_names <- function(from, to, layers, database, schema = 'public') {
   style <- read_style_from_source(from)
   assign_styles_to_layers(style, to, database, schema, layers)
@@ -121,7 +123,8 @@ copy_styles_layer_names <- function(from, to, layers, database, schema = 'public
 #' categories <- get_layer_categories(from = gpkg_path, r_clc = r_clc)
 #' }
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 get_layer_categories <- function(from, r_clc) {
   style <- read_style_from_source(from)
   values <- sort(terra::unique(r_clc)[, 1])

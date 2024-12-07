@@ -4,6 +4,11 @@
 # clc <img src="man/figures/logo.png" align="right" height="139" alt="CORINE Land Cover" />
 
 <!-- badges: start -->
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/clc)](https://CRAN.R-project.org/package=clc)
+[![Codecov test
+coverage](https://codecov.io/gh/josesamos/clc/graph/badge.svg)](https://app.codecov.io/gh/josesamos/clc)
 <!-- badges: end -->
 
 *CORINE Land Cover* (*CLC*) is a European land use and land cover

@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 # clc <img src="man/figures/logo.png" align="right" height="139" alt="CORINE Land Cover" />
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/clc)](https://CRAN.R-project.org/package=clc)
+[![Codecov test coverage](https://codecov.io/gh/josesamos/clc/graph/badge.svg)](https://app.codecov.io/gh/josesamos/clc)
 <!-- badges: end -->
 
 *CORINE Land Cover* (*CLC*) is a European land use and land cover classification system that provides standardized geospatial data on land cover categories. It includes an associated style definition, typically stored in formats like GeoPackage, which links land cover codes to descriptive labels and visualization attributes (e.g., colors) for consistent representation across GIS platforms.

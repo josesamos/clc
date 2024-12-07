@@ -118,7 +118,7 @@ vector_to_raster_layers <- function(vector_layer,
   if (!is.null(base_raster)) {
     r_base <- base_raster
     bbox_raster <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(r_base)))
-    vector_layer <- clip_multipoligon(vector_layer, bbox_raster)
+    vector_layer <- safe_clip_multipoligon(vector_layer, bbox_raster)
     if (nrow(vector_layer) == 0) {
       stop("The vector layer does not overlap with the base raster.")
     }
