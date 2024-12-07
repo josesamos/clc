@@ -20,7 +20,7 @@ plot_clc(clo, ...)
 \item{...}{Additional arguments passed to the `terra::plot` function.}
 }
 \value{
-An object containing CLC data.
+A `ggplot2` object or a `terra` plot.
 }
 \description{
 Plot CLC data stored in objects of supported classes. The function adapts the plot

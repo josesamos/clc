@@ -61,60 +61,6 @@ test_that("vector_to_raster_layers stops if the vector does not overlap with the
 })
 
 
-
-test_that("find_clc_column identifies the correct column in the clc layer", {
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
-
-  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
-
-  # Test for the correct column
-  column_name <- find_clc_column(clc_layer)
-  expect_equal(column_name, "CODE_18")
-})
-
-
-test_that("find_clc_column identifies the correct numeric column in the clc layer", {
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
-
-  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
-  clc_layer[["CODE_18"]] <- as.integer(clc_layer[["CODE_18"]])
-
-  # Test for the correct column
-  column_name <- find_clc_column(clc_layer)
-  expect_equal(column_name, "CODE_18")
-})
-
-
-test_that("find_clc_column throws an error when no column matches in lanjaron layer", {
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
-
-  lanjaron_layer <- sf::st_read(gpkg_path, layer = "lanjaron", quiet = TRUE)
-
-  # Test for error when no column matches
-  expect_error(find_clc_column(lanjaron_layer),
-                         "No column found whose values are a CLC code.")
-})
-
-test_that("find_clc_column throws an error when multiple columns match", {
-  gpkg_path <- system.file("extdata", "clc.gpkg", package = "clc")
-
-  clc_layer <- sf::st_read(gpkg_path, layer = "clc", quiet = TRUE)
-  clc_layer$duplicate_column <- clc_layer$CODE_18
-
-  # Test for error when multiple columns match
-  expect_error(find_clc_column(clc_layer),
-                         "Multiple columns found whose values are CLC codes. Please specify explicitly.")
-})
-
-test_that("find_clc_column works with an empty sf object", {
-  empty_layer <- sf::st_sf(sf::st_sfc(), data.frame())
-
-  # Test for error when the sf object is empty
-  expect_error(find_clc_column(empty_layer),
-                         "No column found whose values are a CLC code.")
-})
-
-
 test_that("plot function runs without errors", {
 
   source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
@@ -131,3 +77,64 @@ test_that("plot function runs without errors", {
   dev.off()
 })
 
+
+testthat::test_that("clc_raster creates an object correctly", {
+  source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+  clo <- clc(source = source_gpkg, layer_name = "clc")
+
+  raster_path <- system.file("extdata", "mdt.tif", package = "clc")
+  base_raster <- terra::rast(raster_path)
+
+  r <- clo |>
+    as_raster(base_raster = base_raster)
+
+  # Check class
+  testthat::expect_s3_class(r, "clc_raster")
+
+  # Check structure
+  testthat::expect_true(inherits(r$raster, "SpatRaster"))
+  testthat::expect_s3_class(r$category, "clc_category")
+})
+
+testthat::test_that("get_levels.clc_raster returns correct levels", {
+  source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+  clo <- clc(source = source_gpkg, layer_name = "clc")
+
+  r <- clo |>
+    as_raster(resolution = 50)
+
+  levels <- get_levels(r)
+
+  # Check structure
+  testthat::expect_equal(colnames(levels), c("id", "description", "color"))
+  testthat::expect_equal(nrow(levels), 20)
+})
+
+testthat::test_that("get_colors.clc_raster returns correct colors", {
+  source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+  clo <- clc(source = source_gpkg, layer_name = "clc")
+
+  r <- clo |>
+    as_raster(resolution = 50)
+
+  colors <- get_colors(clo)
+
+  # Check structure
+  testthat::expect_type(colors, "character")
+  testthat::expect_length(colors, 20)
+})
+
+testthat::test_that("get_raster.clc_raster returns the raster", {
+  source_gpkg <- system.file("extdata", "clc.gpkg", package = "clc")
+  clo <- clc(source = source_gpkg, layer_name = "clc")
+
+  r <- clo |>
+    as_raster(resolution = 50)
+
+  raster <- get_raster(r)
+
+  # Check that the raster is returned correctly
+  testthat::expect_true(inherits(raster, "SpatRaster"))
+  testthat::expect_equal(terra::nlyr(raster), 1) # Ensure single-layer raster
+  testthat::expect_equal(terra::res(raster), c(50, 50))
+})

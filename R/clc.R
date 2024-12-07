@@ -318,7 +318,7 @@ copy_to.clc <- function(clo,
 #'   - A raster CLC data object (e.g., `clc_raster`).
 #' @param ... Additional arguments passed to the `terra::plot` function.
 #'
-#' @return An object containing CLC data.
+#' @return A `ggplot2` object or a `terra` plot.
 #'
 #' @family CLC class functions
 #' @seealso \code{\link{prepare_plot}}
@@ -353,7 +353,6 @@ plot_clc.clc <- function(clo, ...) {
       name = ""
     ) +
     ggplot2::theme_minimal()
-  clo
 }
 
 
