@@ -4,9 +4,8 @@
 # clc <img src="man/figures/logo.png" align="right" height="139" alt="CORINE Land Cover" />
 
 <!-- badges: start -->
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/clc)](https://CRAN.R-project.org/package=clc) -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/clc)](https://CRAN.R-project.org/package=clc)
 [![R-CMD-check](https://github.com/josesamos/clc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/clc/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/josesamos/clc/graph/badge.svg)](https://app.codecov.io/gh/josesamos/clc)
@@ -27,8 +26,14 @@ and destinations.
 
 ## Installation
 
-You can install the development version of clc from
-[GitHub](https://github.com/) with:
+You can install the released version of `clc` from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("clc")
+```
+
+And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
