@@ -1,3 +1,3 @@
-# clc 0.1.0
+# clc 1.0.0
 
 * Initial CRAN submission.
