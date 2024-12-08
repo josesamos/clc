@@ -167,3 +167,4 @@ test_that("find_clc_column throws an error for non-sf objects", {
   )
 })
 
+

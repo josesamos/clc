@@ -246,3 +246,87 @@ test_that("assign_styles_to_layers works with PostGIS database connection", {
   # Validate final result
   expect_equal(result, invisible(mock_combined_styles))
 })
+
+
+test_that("read_style_from_source reads styles from a GeoPackage", {
+  # Create a temporary GeoPackage file with a style table
+  temp_gpkg <- tempfile(fileext = ".gpkg")
+  sf::st_write(
+    sf::st_sf(
+      f_table_name = c("layer1", "layer2"),  # Layer names
+      styleQML = c("qml1", "qml2"),         # Example QML styles
+      styleSLD = c("sld1", "sld2"),         # Example SLD styles
+      geometry = sf::st_sfc(sf::st_point(c(0, 0)), sf::st_point(c(1, 1))),  # Dummy geometry
+      crs = 4326
+    ),
+    temp_gpkg,
+    layer = "layer_styles",
+    quiet = TRUE
+  )
+
+  # Test reading the full style table
+  style <- read_style_from_source(temp_gpkg)
+  expect_s3_class(style, "sf")  # Verify the result is an sf object
+  expect_equal(nrow(style), 1)  # By default, only the first style is returned
+
+  # Test reading a specific layer's style
+  style_layer1 <- read_style_from_source(temp_gpkg, layer_name = "layer1")
+  expect_equal(style_layer1$f_table_name, "layer1")
+  expect_equal(style_layer1$styleQML, "qml1")
+
+  # Test handling of a non-existent layer
+  expect_error(
+    read_style_from_source(temp_gpkg, layer_name = "nonexistent_layer"),
+    "No style found for the specified layer name"
+  )
+})
+
+test_that("read_style_from_source handles all PostGIS-style columns", {
+  # Create data with these columns
+  postgis_style <- sf::st_sf(
+    id = 1:2,                                # Simulated PostGIS ID column
+    f_table_catalog = c("catalog1", "catalog2"),
+    f_table_schema = c("schema1", "schema2"),
+    f_table_name = c("layer1", "layer2"),
+    f_geometry_column = c("geom1", "geom2"),
+    stylename = c("style1", "style2"),
+    styleqml = c("qml1", "qml2"),
+    stylesld = c("sld1", "sld2"),
+    useasdefault = c(TRUE, FALSE),
+    description = c("desc1", "desc2"),
+    owner = c("owner1", "owner2"),
+    ui = c("ui1", "ui2"),
+    update_time = as.POSIXct(c("2024-01-01", "2024-01-02")),
+    geometry = sf::st_sfc(sf::st_point(c(0, 0)), sf::st_point(c(1, 1))),  # Dummy geometry
+    crs = 4326
+  )
+
+  # Write the PostGIS-style data to a GeoPackage
+  temp_gpkg <- tempfile(fileext = ".gpkg")
+  sf::st_write(postgis_style, temp_gpkg, layer = "layer_styles", quiet = TRUE)
+
+  # Read the data and ensure transformation logic is applied
+  style <- read_style_from_source(temp_gpkg)
+
+  # Verify that all columns are present after transformation
+  transformed_columns <- c(
+    "f_table_catalog",
+    "f_table_schema",
+    "f_table_name",
+    "f_geometry_column",
+    "styleName",
+    "styleQML",
+    "styleSLD",
+    "useAsDefault",
+    "description",
+    "owner",
+    "ui",
+    "update_time"
+  )
+
+  expect_true(all(transformed_columns %in% names(style)))
+  expect_equal(style$f_table_catalog, "")  # Catalog should be empty after transformation
+  expect_equal(style$f_table_schema, "")   # Schema should be empty after transformation
+  expect_equal(style$f_table_name[1], "layer1")
+  expect_equal(style$useAsDefault[1], TRUE)
+})
