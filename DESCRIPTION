@@ -7,10 +7,10 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-4457-3439")),
     person("Universidad de Granada", role = "cph")
   )
-Description: The clc package provides functions to facilitate the
-    management, analysis, and visualization of CORINE Land Cover (CLC)
-    data, addressing challenges related to its classification system and
-    associated styles, including color mappings and descriptive labels.
+Description: This package offers functions to streamline the management, 
+    analysis, and visualization of CORINE Land Cover data. It addresses 
+    challenges associated with its classification system and related styles, 
+    such as color mappings and descriptive labels.
 License: MIT + file LICENSE
 URL: https://josesamos.github.io/clc/, https://github.com/josesamos/clc
 BugReports: https://github.com/josesamos/clc/issues
