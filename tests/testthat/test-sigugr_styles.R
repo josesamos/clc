@@ -32,3 +32,50 @@ test_that("get_layer_categories extracts categories correctly from GeoPackage", 
   raster_values <- unique(terra::values(r_clc))
   expect_true(all(categories$id %in% raster_values))
 })
+
+
+test_that("copy_styles_layer_names works with PostGIS database connection", {
+  # Mock inputs
+  mock_from <- "mock_source" # Simulated source, e.g., GeoPackage or DB connection
+  mock_to <- "mock_destination" # Simulated destination PostGIS connection
+  mock_layers <- c("layer1", "layer2") # Mock layer names
+  mock_database <- "test_db"
+  mock_schema <- "public"
+  mock_style <- data.frame(style_name = "mock_style", value = "mock_value") # Mock style
+
+  # Mocks for dependent functions
+  mock_read_style_from_source <- mockery::mock(mock_style)
+  mock_assign_styles_to_layers <- mockery::mock(invisible(mock_style))
+
+  # Stubbing internal functions
+  mockery::stub(copy_styles_layer_names, "read_style_from_source", mock_read_style_from_source)
+  mockery::stub(copy_styles_layer_names, "assign_styles_to_layers", mock_assign_styles_to_layers)
+
+  # Call the function
+  result <- copy_styles_layer_names(
+    from = mock_from,
+    to = mock_to,
+    layers = mock_layers,
+    database = mock_database,
+    schema = mock_schema
+  )
+
+  # Validate calls and arguments for `read_style_from_source`
+  mockery::expect_called(mock_read_style_from_source, 1)
+  mockery::expect_args(mock_read_style_from_source, 1, mock_from)
+
+  # Validate calls and arguments for `assign_styles_to_layers`
+  mockery::expect_called(mock_assign_styles_to_layers, 1)
+  mockery::expect_args(
+    mock_assign_styles_to_layers,
+    1,
+    style = mock_style,
+    to = mock_to,
+    database = mock_database,
+    schema = mock_schema,
+    layers = mock_layers
+  )
+
+  # Validate final result
+  expect_equal(result, invisible(mock_style))
+})

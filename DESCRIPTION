@@ -27,6 +27,7 @@ Imports:
     xml2
 Suggests: 
     knitr,
+    mockery,
     purrr,
     rmarkdown,
     testthat (>= 3.0.0)

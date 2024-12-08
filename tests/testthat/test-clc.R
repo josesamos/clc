@@ -158,3 +158,12 @@ testthat::test_that("prepare_plot generates a ggplot2 object", {
   testthat::expect_s3_class(p, "ggplot")
 })
 
+test_that("find_clc_column throws an error for non-sf objects", {
+  non_sf_input <- data.frame(column1 = c("100", "200", "300"), column2 = c(1, 2, 3))
+
+  expect_error(
+    find_clc_column(non_sf_input),
+    "'vector_layer' must be an 'sf' object."
+  )
+})
+

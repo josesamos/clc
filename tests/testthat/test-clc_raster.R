@@ -138,3 +138,42 @@ testthat::test_that("get_raster.clc_raster returns the raster", {
   testthat::expect_equal(terra::nlyr(raster), 1) # Ensure single-layer raster
   testthat::expect_equal(terra::res(raster), c(50, 50))
 })
+
+
+test_that("get_colors.clc_raster works as expected", {
+  # Mock input object with category field
+  clo <- list(category = c("urban", "forest", "water"))
+
+  # Mock function to simulate get_colors behavior
+  mock_get_colors <- function(categories) {
+    setNames(c("#FF0000", "#00FF00", "#0000FF"), categories)
+  }
+
+  # Stub get_colors function in get_colors.clc_raster
+  mockery::stub(get_colors.clc_raster, "get_colors", mock_get_colors)
+
+  # Execute the function
+  result <- get_colors.clc_raster(clo)
+
+  # Validate the result
+  expect_equal(result, c(urban = "#FF0000", forest = "#00FF00", water = "#0000FF"))
+})
+
+test_that("get_colors.clc_raster handles empty category gracefully", {
+  # Case: category field is empty
+  clo <- list(category = character(0))
+
+  # Mock function to handle empty input for get_colors
+  mock_get_colors <- function(categories) {
+    setNames(character(0), categories)
+  }
+
+  # Stub get_colors function in get_colors.clc_raster
+  mockery::stub(get_colors.clc_raster, "get_colors", mock_get_colors)
+
+  # Execute the function
+  result <- get_colors.clc_raster(clo)
+
+  # Validate that the result is an empty named vector
+  expect_equal(result, setNames(character(0), character(0)))
+})
