@@ -1,16 +1,16 @@
 Type: Package
 Package: clc
-Title: Tools for Working with CORINE Land Cover Data and Styles
+Title: CORINE Land Cover Data and Styles
 Version: 1.0.0
 Authors@R: c(
     person("Jose", "Samos", , "jsamos@ugr.es", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4457-3439")),
     person("Universidad de Granada", role = "cph")
   )
-Description: This package offers functions to streamline the management, 
-    analysis, and visualization of CORINE Land Cover data. It addresses 
-    challenges associated with its classification system and related styles, 
-    such as color mappings and descriptive labels.
+Description: Streamline the management, analysis, and visualization of
+    CORINE Land Cover data. Addresses challenges associated with its
+    classification system and related styles, such as color mappings and
+    descriptive labels.
 License: MIT + file LICENSE
 URL: https://josesamos.github.io/clc/, https://github.com/josesamos/clc
 BugReports: https://github.com/josesamos/clc/issues
