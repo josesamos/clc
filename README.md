@@ -10,6 +10,8 @@ status](https://www.r-pkg.org/badges/version/clc)](https://CRAN.R-project.org/pa
 [![R-CMD-check](https://github.com/josesamos/clc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/clc/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/josesamos/clc/graph/badge.svg)](https://app.codecov.io/gh/josesamos/clc)
+[![CRAN
+Downloads](http://cranlogs.r-pkg.org/badges/grand-total/clc)](https://cran.r-project.org/package=clc)
 <!-- badges: end -->
 
 *CORINE Land Cover* (*CLC*) is a European land use and land cover
