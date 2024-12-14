@@ -69,7 +69,8 @@ clip_vector <- function(vector, polygon) {
 #'
 #' clc_clipped <- safe_clip_multipoligon(clc, lanjaron)
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 safe_clip_multipoligon <- function(vector, polygon) {
   tryCatch({
     v <- sf::st_cast(vector, "MULTIPOLYGON")
