@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   clc: clc.html
-last_built: 2024-12-12T12:59Z
+last_built: 2024-12-14T06:18Z
 urls:
   reference: https://josesamos.github.io/clc/reference
   article: https://josesamos.github.io/clc/articles
